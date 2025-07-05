@@ -21,19 +21,7 @@ declare module "next-auth" {
 // NextAuth uses 'callbacks' to let you control what is saved in the JWT and session
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Slack({
-      // The profile callback lets you control what is returned as the user object
-      // profile(profile) {
-      //   console.log(profile)
-      //   return {
-      //     ok: profile.ok,
-      //     email: profile.email,
-      //     name: profile.name,
-      //     picture: profile.picture ,
-      //     "https://slack.com/user_id": profile.id,
-      //   };
-      // },
-    }),git
+    Slack({}),
   ],
   callbacks: {
     // 'jwt' callback runs whenever a JWT is created or updated
@@ -41,7 +29,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // If this is the initial sign-in, persist the Slack access token and id in the JWT
       if (account && profile) {
         token.accessToken = account.access_token;
-        // console.log(token)  
+        token.sub = profile.sub;
+        console.log("JWT token:", token)  
       }
       return token;
     },
@@ -52,7 +41,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // session.user is the simplified profile object returned in the slack provider, and this seems to not be able to be changed  
       // token.* is the JWT object
       session.accessToken = token.accessToken as string | undefined;
-      console.log(session)
+      if (token.sub) {
+        session.user.id = token.sub as string;
+      }
+      console.log("Session data pulled: ", session)
       return session;
     },
   },
