@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "bun dev",
+      "name": "frontend",
+      "request": "launch",
+      "type": "node-terminal",
+      "cwd": "${workspaceFolder}/frontend"
+    },
+    // {
+    //     "command": "npm run build",
+    //     "name": "Run build",
+    //     "request": "launch",
+    //     "type": "node-terminal",
+    //     "cwd": "${workspaceFolder}/frontend"
+    // },
+    // {
+    //   "name": "FastAPI",
+    //   "type": "debugpy",
+    //   "request": "launch",
+    //   "module": "uvicorn",
+    //   // --reload seems to cause issues with browser-use
+    //   // "args": ["podium.main:app", "--reload"],
+    //   "args": ["podium.main:app"],
+    //   "env": {
+    //     "ENV_FOR_DYNACONF": "development"
+    //   },
+    //   "cwd": "${workspaceFolder}/backend",
+    //   "justMyCode": true
+    //   // "jinja": true
+    // }
+  ],
+  "compounds": [
+    {
+      "name": "dev",
+      "configurations": ["frontend", "FastAPI"]
+    }
+  ]
+}
