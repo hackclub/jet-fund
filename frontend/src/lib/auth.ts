@@ -9,7 +9,7 @@
 
 import NextAuth from "next-auth"
 import Slack from "next-auth/providers/slack"
-import { findOrCreateAirtableUser, User } from "@/lib/db/user"
+import { findOrCreateAirtableUser } from "@/lib/db/user"
 
 // --- Type augmentation to add accessToken to the Session type ---
 import type { Session } from "next-auth"
@@ -17,10 +17,10 @@ declare module "next-auth" {
   interface Session {
     accessToken?: string;
     user: {
-      id: string;
-      name: string;
-      email: string;
-      airtable?: User;
+      id: string; // Slack ID
+      airtableId: string; // Airtable record ID
+      name?: string;
+      email?: string;
     }
   }
 }
@@ -39,8 +39,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.sub = profile.sub!;
         // Ensure Airtable user exists and load into token
         try {
-          const user: User = await findOrCreateAirtableUser({ slackId: profile.sub! });
-          token.airtableUser = user;
+          const user = await findOrCreateAirtableUser({ slackId: profile.sub! });
+          token.airtableId = user.id;
         } catch (err) {
           console.error("Airtable user ensure error (jwt):", err);
         }
@@ -52,28 +52,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // 'session' callback runs whenever a session is checked or created
       // The session is the object returned to the client (browser) via auth() or useSession()
       // 'session' is what will be returned to the client, 'token' is the JWT
-      // session.user is the simplified profile object returned in the slack provider, and this seems to not be able to be changed  
-      // token.* is the JWT object
       session.accessToken = token.accessToken as string | undefined;
-      if (token.sub && /^U[0-9A-Z]+$/.test(token.sub as string)) {
-        session.user.id = token.sub as string;
-      }
-      // Return a new session object with the custom field
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          airtable: token.airtableUser,
-        },
-      };
+      session.user.id = token.sub as string;
+      session.user.airtableId = token.airtableId as string;
+      return session;
     },
   },
 })
 
-// Helper to get the current user from the session
+// Helper to get the current user IDs from the session
 export async function getUser() {
-  // 'auth()' returns the session object for the current user
-  // The session now includes 'accessToken' and Slack user ID if the user signed in with Slack
   const session = await auth();
-  return session?.user;
+  if (!session?.user) return null;
+  return {
+    id: session.user.id, // Slack ID
+    airtableId: session.user.airtableId, // Airtable record ID
+  };
 }

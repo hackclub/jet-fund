@@ -39,4 +39,20 @@ export async function findOrCreateAirtableUser({ slackId }: { slackId: string })
     { fields: { slackId } },
   ]);
   return airtableRecordToUser(created[0]);
+}
+
+/**
+ * Fetches a user record from Airtable by record ID, including all fields.
+ * Returns null if not found.
+ */
+export async function getAirtableUserById(id: string): Promise<{ id: string; slackId: string; name?: string; email?: string; projects?: string[] } | null> {
+  const record = await base(USERS_TABLE).find(id);
+  if (!record) return null;
+  return {
+    id: record.id,
+    slackId: record.get('slackId') as string,
+    name: record.get('name') as string | undefined,
+    email: record.get('email') as string | undefined,
+    projects: record.get('projects') as string[] | undefined,
+  };
 } 

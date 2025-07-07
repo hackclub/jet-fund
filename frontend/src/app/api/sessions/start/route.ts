@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSession } from "@/lib/db/airtable";
 import { getUser } from "@/lib/auth";
-import { getAirtableUserBySlackId } from "@/lib/db/user";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,16 +10,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing project." }, { status: 400 });
     }
     const user = await getUser();
-    if (!user || !user.id) {
+    if (!user || !user.airtableId) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
-    }
-    const airtableUser = await getAirtableUserBySlackId(user.id);
-    if (!airtableUser) {
-      return NextResponse.json({ error: "Airtable user not found." }, { status: 404 });
     }
     const now = new Date().toISOString();
     const sessionData = {
-      user: [airtableUser.id],
+      user: [user.airtableId],
       project: [body.project],
       startTime: now,
       endTime: "", // Not set yet
