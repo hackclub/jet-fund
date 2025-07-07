@@ -3,6 +3,7 @@ import "./globals.css";
 import localFont from 'next/font/local'
 import { Plane } from "lucide-react";
 import { SessionProvider } from "next-auth/react"
+import Link from 'next/link';
 
 
 export const metadata: Metadata = {
@@ -28,9 +29,11 @@ export default function RootLayout({
           className={`${phantomSans.className} antialiased`}
         >
           <div className="flex items-center pt-8 px-6">
-        <Plane size={32} className="mr-3" />
-        <h1 className="text-2xl font-bold m-0">Jet Fund</h1>
-      </div>
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <Plane size={32} className="mr-3" />
+              <h1 className="text-2xl font-bold m-0">Jet Fund</h1>
+            </Link>
+          </div>
           {children}
       </body>
     </html>
