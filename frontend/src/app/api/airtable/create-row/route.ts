@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   // This doesn't work because the id needs to be retrieved from the slack api using the email
   try {
     await base(TABLE_NAME).create([
-      { fields: { slackId: slackId, email: email } },
+      { fields: { slackId: slackId } },
     ]);
     return NextResponse.json({ success: true });
   } catch (error) {

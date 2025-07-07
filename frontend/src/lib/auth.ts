@@ -15,6 +15,11 @@ import type { Session } from "next-auth"
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+    }
   }
 }
 
@@ -29,7 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // If this is the initial sign-in, persist the Slack access token and id in the JWT
       if (account && profile) {
         token.accessToken = account.access_token;
-        token.sub = profile.sub;
+        token.sub = profile.sub!;
         console.log("JWT token:", token)  
       }
       return token;
@@ -41,7 +46,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // session.user is the simplified profile object returned in the slack provider, and this seems to not be able to be changed  
       // token.* is the JWT object
       session.accessToken = token.accessToken as string | undefined;
-      if (token.sub) {
+      if (token.sub && /^U[0-9A-Z]+$/.test(token.sub as string)) {
         session.user.id = token.sub as string;
       }
       console.log("Session data pulled: ", session)
