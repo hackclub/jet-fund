@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@/lib/db/types";
+import prettyMs from "pretty-ms";
 
 interface SessionTimerProps {
   selectedProject: string;
@@ -142,6 +143,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     }
   }
 
+
   return (
     <div className="flex flex-col gap-4 max-w-md mx-auto">
       {!timerActive && !showForm && (
@@ -170,7 +172,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       )}
       {timerActive && (
         <div className="flex flex-col gap-2 items-center">
-          <div className="text-2xl font-mono">{elapsed}s</div>
+          <div className="text-2xl font-mono">{prettyMs(elapsed * 1000, { verbose: true })}</div>
           <Button onClick={stopTimer} variant="secondary">Finish Session</Button>
         </div>
       )}
