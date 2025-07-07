@@ -9,6 +9,7 @@
 
 import NextAuth from "next-auth"
 import Slack from "next-auth/providers/slack"
+import { findOrCreateAirtableUser, User } from "@/lib/db/user"
 
 // --- Type augmentation to add accessToken to the Session type ---
 import type { Session } from "next-auth"
@@ -19,6 +20,7 @@ declare module "next-auth" {
       id: string;
       name: string;
       email: string;
+      airtable?: User;
     }
   }
 }
@@ -35,7 +37,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account && profile) {
         token.accessToken = account.access_token;
         token.sub = profile.sub!;
-        console.log("JWT token:", token)  
+        // Ensure Airtable user exists and load into token
+        try {
+          const user: User = await findOrCreateAirtableUser({ slackId: profile.sub! });
+          token.airtableUser = user;
+        } catch (err) {
+          console.error("Airtable user ensure error (jwt):", err);
+        }
+        console.log("JWT token:", token)
       }
       return token;
     },
@@ -49,8 +58,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.sub && /^U[0-9A-Z]+$/.test(token.sub as string)) {
         session.user.id = token.sub as string;
       }
-      console.log("Session data pulled: ", session)
-      return session;
+      // Return a new session object with the custom field
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          airtable: token.airtableUser,
+        },
+      };
     },
   },
 })
