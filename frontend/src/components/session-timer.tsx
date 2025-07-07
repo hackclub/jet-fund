@@ -21,7 +21,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
   const [sessionId, setSessionId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // On mount, check for unfinished session
+  // Check for unfinished session on mount
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     async function checkUnfinished() {
@@ -29,13 +29,16 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       const data = await res.json();
       if (data.session) {
         setSessionId(data.session.id);
-        const started = new Date(data.session.startTime);
+        // Use the session data from the API response
+        const session = data.session;
+        const started = new Date(session.startTime);
         setStartTime(started);
         setTimerActive(true);
         setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         interval = setInterval(() => {
           setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         }, 1000);
+        setSelectedProject(session.project[0]);
       }
     }
     checkUnfinished();
@@ -174,6 +177,9 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         <div className="flex flex-col gap-2 items-center">
           <div className="text-2xl font-mono">{prettyMs(elapsed * 1000, { verbose: true })}</div>
           <Button onClick={stopTimer} variant="secondary">Finish Session</Button>
+          <div className="text-sm text-muted-foreground">
+            Working on <strong>{projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'}</strong>
+          </div>
         </div>
       )}
       {showForm && (

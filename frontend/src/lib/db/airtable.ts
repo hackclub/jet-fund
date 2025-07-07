@@ -87,4 +87,26 @@ export async function getUnfinishedSessionForUser(userId: string) {
     gitCommitUrl: record.get('gitCommitUrl') as string,
     imageUrl: record.get('imageUrl') as string,
   };
+}
+
+/**
+ * Fetches a session by its ID from Airtable Sessions table.
+ * @param sessionId The session record ID
+ * @returns The Session record or null if not found
+ */
+export async function getSessionById(sessionId: string): Promise<Session | null> {
+  try {
+    const record = await base(SESSIONS_TABLE).find(sessionId);
+    return {
+      id: record.id,
+      user: record.get("user") as string[],
+      project: record.get("project") as string[],
+      startTime: record.get("startTime") as string,
+      endTime: record.get("endTime") as string,
+      gitCommitUrl: record.get("gitCommitUrl") as string,
+      imageUrl: record.get("imageUrl") as string,
+    };
+  } catch (err) {
+    return null;
+  }
 } 
