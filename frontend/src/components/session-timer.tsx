@@ -1,33 +1,24 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@/lib/db/types";
 
 interface SessionTimerProps {
   selectedProject: string;
   setSelectedProject: (id: string) => void;
+  projects: Pick<Project, 'id' | 'name'>[];
 }
 
-export default function SessionTimer({ selectedProject, setSelectedProject }: SessionTimerProps) {
+export default function SessionTimer({ selectedProject, setSelectedProject, projects }: SessionTimerProps) {
   const [timerActive, setTimerActive] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [showForm, setShowForm] = useState(false);
-  const [projects, setProjects] = useState<Pick<Project, 'id' | 'name'>[]>([]);
   const [gitCommitUrl, setGitCommitUrl] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    async function fetchProjects() {
-      const res = await fetch("/api/projects");
-      const data = await res.json();
-      if (res.ok) setProjects(data.projects);
-    }
-    fetchProjects();
-  }, []);
 
   async function startTimer() {
     setLoading(true);

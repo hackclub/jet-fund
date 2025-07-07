@@ -2,20 +2,17 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@/lib/db/types";
 
-export default function ProjectManager({ onSelect, selectedProject }: { onSelect?: (id: string) => void, selectedProject?: string }) {
-  const [projects, setProjects] = useState<Pick<Project, 'id' | 'name'>[]>([]);
+export default function ProjectManager({ onSelect, selectedProject, projects, setProjects, refreshProjects }: {
+  onSelect?: (id: string) => void,
+  selectedProject?: string,
+  projects: Pick<Project, 'id' | 'name'>[],
+  setProjects: React.Dispatch<React.SetStateAction<Pick<Project, 'id' | 'name'>[]>>,
+  refreshProjects: () => Promise<void>,
+}) {
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [loading, setLoading] = useState(false);
-
-  async function fetchProjects() {
-    const res = await fetch("/api/projects");
-    const data = await res.json();
-    if (res.ok) setProjects(data.projects);
-  }
-
-  useEffect(() => { fetchProjects(); }, []);
 
   async function handleCreate() {
     if (!newName.trim()) return;
@@ -27,7 +24,7 @@ export default function ProjectManager({ onSelect, selectedProject }: { onSelect
     });
     if (res.ok) {
       setNewName("");
-      fetchProjects();
+      await refreshProjects();
     }
     setLoading(false);
   }
@@ -43,7 +40,7 @@ export default function ProjectManager({ onSelect, selectedProject }: { onSelect
     if (res.ok) {
       setEditingId(null);
       setEditingName("");
-      fetchProjects();
+      await refreshProjects();
     }
     setLoading(false);
   }
@@ -51,7 +48,7 @@ export default function ProjectManager({ onSelect, selectedProject }: { onSelect
   async function handleDelete(id: string) {
     setLoading(true);
     await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    fetchProjects();
+    await refreshProjects();
     setLoading(false);
   }
 
