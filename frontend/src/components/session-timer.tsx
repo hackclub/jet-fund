@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@/lib/db/types";
 
@@ -20,6 +20,27 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
   const [sessionId, setSessionId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // On mount, check for unfinished session
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    async function checkUnfinished() {
+      const res = await fetch("/api/sessions");
+      const data = await res.json();
+      if (data.session) {
+        setSessionId(data.session.id);
+        const started = new Date(data.session.startTime);
+        setStartTime(started);
+        setTimerActive(true);
+        setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
+        interval = setInterval(() => {
+          setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
+        }, 1000);
+      }
+    }
+    checkUnfinished();
+    return () => { if (interval) clearInterval(interval); };
+  }, []);
+
   async function startTimer() {
     setLoading(true);
     setMessage(null);
@@ -32,11 +53,12 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       const data = await res.json();
       if (res.ok && data.success) {
         setSessionId(data.session.id);
-        setStartTime(new Date()); // For local elapsed display only
+        const started = new Date(data.session.startTime);
+        setStartTime(started);
         setTimerActive(true);
-        setElapsed(0);
+        setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         intervalRef.current = setInterval(() => {
-          setElapsed((prev) => prev + 1);
+          setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         }, 1000);
       } else {
         setMessage(data.error || "Failed to start session.");
@@ -83,7 +105,9 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         setStartTime(null);
         setElapsed(0);
         setSessionId(null);
+        setTimerActive(false);
         setSelectedProject("");
+        if (intervalRef.current) clearInterval(intervalRef.current);
       } else {
         setMessage(data.error || "Failed to log session.");
       }

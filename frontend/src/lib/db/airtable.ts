@@ -65,4 +65,26 @@ export async function updateSession(sessionId: string, fields: Partial<Pick<Sess
     gitCommitUrl: record.get("gitCommitUrl") as string,
     imageUrl: record.get("imageUrl") as string,
   };
+}
+
+/**
+ * Fetches the current unfinished session for a user (endTime is empty).
+ */
+export async function getUnfinishedSessionForUser(userId: string) {
+  const records = await base(SESSIONS_TABLE).select({
+    filterByFormula: `AND(userId = '${userId}', OR(endTime = '', NOT(endTime)))`,
+    maxRecords: 1,
+    view: 'Grid view',
+  }).firstPage();
+  if (records.length === 0) return null;
+  const record = records[0];
+  return {
+    id: record.id,
+    user: record.get('user') as string[],
+    project: record.get('project') as string[],
+    startTime: record.get('startTime') as string,
+    endTime: record.get('endTime') as string,
+    gitCommitUrl: record.get('gitCommitUrl') as string,
+    imageUrl: record.get('imageUrl') as string,
+  };
 } 

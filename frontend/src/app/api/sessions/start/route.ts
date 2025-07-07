@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSession } from "@/lib/db/airtable";
+import { createSession, getUnfinishedSessionForUser } from "@/lib/db/airtable";
 import { getUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -12,6 +12,11 @@ export async function POST(req: NextRequest) {
     const user = await getUser();
     if (!user || !user.airtableId) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+    }
+    // Check for unfinished session
+    const unfinished = await getUnfinishedSessionForUser(user.airtableId);
+    if (unfinished) {
+      return NextResponse.json({ error: "You already have an unfinished session.", unfinishedSession: unfinished }, { status: 400 });
     }
     const now = new Date().toISOString();
     const sessionData = {
