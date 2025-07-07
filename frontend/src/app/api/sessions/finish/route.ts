@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/db/airtable";
 import { getUser } from "@/lib/auth";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

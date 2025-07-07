@@ -76,6 +76,20 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     setShowForm(true);
   }
 
+  // Helper: Upload file to Bucky and then to Hack Club CDN
+  async function uploadImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) throw new Error("Image upload failed");
+    const data = await response.json();
+    return data.url;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -85,10 +99,20 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       setLoading(false);
       return;
     }
+    let imageUrl = "";
+    if (image) {
+      try {
+        imageUrl = await uploadImage(image);
+      } catch (err) {
+        setMessage("Image upload failed.");
+        setLoading(false);
+        return;
+      }
+    }
     const body = {
       sessionId,
       gitCommitUrl,
-      imageUrl: image ? image.name : "",
+      imageUrl,
     };
     try {
       const res = await fetch("/api/sessions/finish", {
