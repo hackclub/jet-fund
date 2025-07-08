@@ -16,7 +16,7 @@ interface SubmissionData {
 }
 
 export default function ProjectSubmission({ project, onClose, onSuccess }: ProjectSubmissionProps) {
-  const [data, setData] = useState<SubmissionData>({
+  const [formData, setFormData] = useState<SubmissionData>({
     playableUrl: "",
     codeUrl: "",
     screenshot: null,
@@ -33,13 +33,13 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
     try {
       // Upload screenshot first
       let screenshotUrl = "";
-      if (data.screenshot) {
-        const formData = new FormData();
-        formData.append("file", data.screenshot);
+      if (formData.screenshot) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", formData.screenshot);
         
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
-          body: formData,
+          body: uploadFormData,
         });
         
         if (!uploadRes.ok) {
@@ -55,10 +55,10 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          playableUrl: data.playableUrl,
-          codeUrl: data.codeUrl,
+          playableUrl: formData.playableUrl,
+          codeUrl: formData.codeUrl,
           screenshotUrl,
-          description: data.description,
+          description: formData.description,
         }),
       });
 
@@ -95,8 +95,8 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
               <input
                 type="url"
                 id="playableUrl"
-                value={data.playableUrl}
-                onChange={(e) => setData(prev => ({ ...prev, playableUrl: e.target.value }))}
+                value={formData.playableUrl}
+                onChange={(e) => setFormData(prev => ({ ...prev, playableUrl: e.target.value }))}
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="https://your-project.vercel.app"
                 required
@@ -110,8 +110,8 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
               <input
                 type="url"
                 id="codeUrl"
-                value={data.codeUrl}
-                onChange={(e) => setData(prev => ({ ...prev, codeUrl: e.target.value }))}
+                value={formData.codeUrl}
+                onChange={(e) => setFormData(prev => ({ ...prev, codeUrl: e.target.value }))}
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="https://github.com/username/project"
                 required
@@ -126,7 +126,7 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
                 type="file"
                 id="screenshot"
                 accept="image/*"
-                onChange={(e) => setData(prev => ({ ...prev, screenshot: e.target.files?.[0] || null }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, screenshot: e.target.files?.[0] || null }))}
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -141,8 +141,8 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
               </label>
               <textarea
                 id="description"
-                value={data.description}
-                onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={4}
                 placeholder="Describe your project, what it does, technologies used, etc."

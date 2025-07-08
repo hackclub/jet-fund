@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { getProjectByRecordId, updateProject } from "@/lib/db/project";
 import { getUserByRecordId } from "@/lib/db/user";
+import { getUnfinishedSessionForUser } from "@/lib/db/session";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -28,6 +29,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     if (existingProject.status === "finished") {
       return NextResponse.json({ error: "Project is already submitted." }, { status: 400 });
+    }
+
+    // Check if there's an ongoing session for this project
+    const unfinishedSession = await getUnfinishedSessionForUser(user.airtableId);
+    if (unfinishedSession && unfinishedSession.project.includes(id)) {
+      return NextResponse.json({ 
+        error: "Cannot submit project while there's an ongoing session. Please finish your current session first." 
+      }, { status: 400 });
     }
 
     // Check if user has address set

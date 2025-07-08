@@ -41,6 +41,7 @@ export default function Home() {
             selectedProject={selectedProject}
             setSelectedProject={setSelectedProject}
             projects={projects}
+            refreshProjects={fetchProjects}
           />
         </section>
         <section className="bg-white rounded-xl shadow p-6 flex flex-col gap-4 items-center">

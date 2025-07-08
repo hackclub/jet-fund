@@ -7,9 +7,10 @@ interface SessionTimerProps {
   selectedProject: string;
   setSelectedProject: (id: string) => void;
   projects: Project[];
+  refreshProjects: () => Promise<void>;
 }
 
-export default function SessionTimer({ selectedProject, setSelectedProject, projects }: SessionTimerProps) {
+export default function SessionTimer({ selectedProject, setSelectedProject, projects, refreshProjects }: SessionTimerProps) {
   const [timerActive, setTimerActive] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -17,7 +18,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
   const [gitCommitUrl, setGitCommitUrl] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -45,9 +46,19 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     return () => { if (interval) clearInterval(interval); };
   }, []);
 
+  // Clear selected project if it becomes submitted
+  useEffect(() => {
+    if (selectedProject) {
+      const project = projects.find(p => p.id === selectedProject);
+      if (project && project.status === 'finished') {
+        setSelectedProject("");
+      }
+    }
+  }, [projects, selectedProject]);
+
   async function startTimer() {
     setLoading(true);
-    setMessage(null);
+    setStatusMessage(null);
     try {
       const res = await fetch("/api/sessions/start", {
         method: "POST",
@@ -65,14 +76,14 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         }, 1000);
       } else {
-        setMessage(data.error || "Failed to start session.");
+        setStatusMessage(data.error || "Failed to start session.");
         // If it's a submitted project error, clear the selection
         if (data.error && data.error.includes("submitted project")) {
           setSelectedProject("");
         }
       }
     } catch (err) {
-      setMessage("Network error.");
+      setStatusMessage("Network error.");
     } finally {
       setLoading(false);
     }
@@ -101,9 +112,9 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
+    setStatusMessage(null);
     if (!sessionId) {
-      setMessage("No session in progress.");
+      setStatusMessage("No session in progress.");
       setLoading(false);
       return;
     }
@@ -112,7 +123,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       try {
         imageUrl = await uploadImage(image);
       } catch (err) {
-        setMessage("Image upload failed.");
+        setStatusMessage("Image upload failed.");
         setLoading(false);
         return;
       }
@@ -130,7 +141,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setMessage("Session logged!");
+        setStatusMessage("Session logged!");
         setShowForm(false);
         setGitCommitUrl("");
         setImage(null);
@@ -140,11 +151,14 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         setTimerActive(false);
         setSelectedProject("");
         if (intervalRef.current) clearInterval(intervalRef.current);
+        
+        // Refresh projects to get updated data
+        await refreshProjects();
       } else {
-        setMessage(data.error || "Failed to log session.");
+        setStatusMessage(data.error || "Failed to log session.");
       }
     } catch (err) {
-      setMessage("Network error.");
+      setStatusMessage("Network error.");
     } finally {
       setLoading(false);
     }
@@ -216,11 +230,11 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           <Button type="submit" disabled={loading}>
             {loading ? "Logging..." : "Submit Session"}
           </Button>
-          {message && <span className="text-xs text-muted-foreground">{message}</span>}
+          {statusMessage && <span className="text-xs text-muted-foreground">{statusMessage}</span>}
         </form>
       )}
-      {!timerActive && !showForm && message && (
-        <span className="text-xs text-muted-foreground">{message}</span>
+      {!timerActive && !showForm && statusMessage && (
+        <span className="text-xs text-muted-foreground">{statusMessage}</span>
       )}
     </div>
   );

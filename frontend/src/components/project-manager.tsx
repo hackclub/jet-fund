@@ -23,7 +23,8 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
     projectName: "",
   });
   const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
-  const [addressError, setAddressError] = useState<string | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [ongoingSession, setOngoingSession] = useState<string | null>(null);
 
   async function handleCreate() {
     if (!newName.trim()) return;
@@ -81,7 +82,31 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
     refreshProjects();
   }
 
+  // Check for ongoing session on mount and when projects change
+  useEffect(() => {
+    async function checkOngoingSession() {
+      try {
+        const res = await fetch("/api/sessions");
+        const data = await res.json();
+        if (data.session) {
+          setOngoingSession(data.session.project[0]);
+        } else {
+          setOngoingSession(null);
+        }
+      } catch (err) {
+        console.error("Failed to check ongoing session:", err);
+      }
+    }
+    checkOngoingSession();
+  }, [projects]);
+
   async function handleSubmitClick(project: Project) {
+    // Check if there's an ongoing session for this project
+    if (ongoingSession === project.id) {
+      setSubmissionError("Cannot submit project while there's an ongoing session. Please finish your current session first.");
+      return;
+    }
+
     // Check if user has address set before opening submission form
     try {
       const res = await fetch("/api/user/profile");
@@ -91,12 +116,12 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
         // If we get a successful response, user likely has address set
         // (the API would return an error if address is missing)
         setSubmissionProject(project);
-        setAddressError(null);
+        setSubmissionError(null);
       } else {
-        setAddressError("Please set your address in Account Settings before submitting a project.");
+        setSubmissionError("Please set your address in Account Settings before submitting a project.");
       }
     } catch (err) {
-      setAddressError("Failed to check address status. Please try again.");
+      setSubmissionError("Failed to check address status. Please try again.");
     }
   }
 
@@ -113,11 +138,11 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
         <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
       </div>
       
-      {addressError && (
+      {submissionError && (
         <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-          {addressError}
+          {submissionError}
           <button 
-            onClick={() => setAddressError(null)}
+            onClick={() => setSubmissionError(null)}
             className="float-right text-red-800 hover:text-red-900"
           >
             ×
@@ -155,15 +180,24 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
                 }`}>
                   {p.status === 'active' ? 'Active' : 'Submitted'}
                 </span>
+                {ongoingSession === p.id && (
+                  <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">
+                    Session Active
+                  </span>
+                )}
                 {p.status === 'active' && (
                   <>
                     <Button onClick={() => { setEditingId(p.id); setEditingName(p.name); }} variant="secondary">Edit</Button>
-                    <Button onClick={() => handleSubmitClick(p)} disabled={loading} variant="outline">Submit</Button>
+                    <Button 
+                      onClick={() => handleSubmitClick(p)} 
+                      disabled={loading || ongoingSession === p.id} 
+                      variant="outline"
+                      title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
+                    >
+                      Submit
+                    </Button>
                     <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive">Delete</Button>
                   </>
-                )}
-                {p.status === 'finished' && (
-                  <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive">Delete</Button>
                 )}
               </>
             )}
