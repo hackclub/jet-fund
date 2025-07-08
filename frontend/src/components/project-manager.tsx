@@ -148,7 +148,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-2">
           <div className="flex gap-2">
             <Input
               type="text"
@@ -181,7 +181,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
       <div className="space-y-2">
         {projects.map(p => (
           <Card key={p.id}>
-            <CardContent className="pt-6">
+            <CardContent className="pt-2">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
                 {editingId === p.id ? (
                   <>
