@@ -44,7 +44,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         } catch (err) {
           console.error("Airtable user ensure error (jwt):", err);
         }
-        console.log("JWT token:", token)
       }
       return token;
     },

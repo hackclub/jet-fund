@@ -45,7 +45,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    if (!dbUser.addressLine1 || !dbUser.city || !dbUser.state || !dbUser.postalCode || !dbUser.country) {
+    // Validate that address fields are not empty strings
+    if (!dbUser.addressLine1?.trim() || !dbUser.city?.trim() || !dbUser.state?.trim() || !dbUser.postalCode?.trim() || !dbUser.country?.trim()) {
       return NextResponse.json({ 
         error: "Address must be set in account settings before submitting a project." 
       }, { status: 400 });

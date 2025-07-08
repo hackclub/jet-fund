@@ -18,7 +18,7 @@ export async function GET() {
     return NextResponse.json(sanitizeUser(dbUser));
   } catch (err) {
     console.error("Error fetching user profile:", err);
-    return NextResponse.json({ error: "Failed to fetch profile." }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
   }
 }
 
@@ -50,7 +50,7 @@ export async function PUT(req: NextRequest) {
     });
 
     if (!updated) {
-      return NextResponse.json({ error: "Failed to update profile." }, { status: 500 });
+      return NextResponse.json({ error: "Internal server error." }, { status: 500 });
     }
 
     // Return success without any address data
@@ -60,6 +60,6 @@ export async function PUT(req: NextRequest) {
     });
   } catch (err) {
     console.error("Error updating user profile:", err);
-    return NextResponse.json({ error: "Failed to update profile." }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
   }
 } 
