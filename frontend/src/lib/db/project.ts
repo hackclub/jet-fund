@@ -8,7 +8,7 @@ function recordToProject(record: AirtableRecord<FieldSet>): Project {
     id: record.id,
     name: record.get('name') as string,
     user: record.get('user') as string[] || [],
-    status: record.get('status') as "active" | "finished" || "active",
+    status: record.get('status') as "active" | "finished" | "approved" || "active",
     sessions: record.get('sessions') as string[] || [],
     // Submission fields (only present when status is "finished")
     playableUrl: record.get('playableUrl') as string | undefined,
@@ -72,7 +72,7 @@ export async function updateProject(
   id: string,
   data: {
     name?: string;
-    status?: "active" | "finished";
+    status?: "active" | "finished" | "approved";
     playableUrl?: string;
     codeUrl?: string;
     screenshotUrl?: string;

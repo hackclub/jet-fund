@@ -15,6 +15,7 @@ function recordToUser(record: AirtableRecord<FieldSet>): User {
     firstName: record.get('firstName') as string | undefined,
     lastName: record.get('lastName') as string | undefined,
     birthday: record.get('birthday') as string | undefined,
+    spentUsd: record.get('spentUsd') as number | undefined,
     addressLine1: record.get('addressLine1') as string | undefined,
     addressLine2: record.get('addressLine2') as string | undefined,
     city: record.get('city') as string | undefined,
@@ -65,6 +66,7 @@ export function sanitizeUser(user: User): UserSanitized {
     firstName: user.firstName,
     lastName: user.lastName,
     birthday: user.birthday,
+    spentUsd: user.spentUsd,
     projects: user.projects,
     sessions: user.sessions,
   };

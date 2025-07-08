@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import SessionTimer from "@/components/session-timer";
 import ProjectManager from "@/components/project-manager";
 import AccountSettings from "@/components/account-settings";
+import EarningsDisplay from "@/components/earnings-display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect, useCallback } from "react";
@@ -26,6 +27,21 @@ export default function Home() {
     <SessionProvider>
     <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 flex flex-col items-center py-12 px-2">
       <main className="w-full max-w-2xl flex flex-col gap-8">
+        <EarningsDisplay />
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Log a Session</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SessionTimer
+              selectedProject={selectedProject}
+              setSelectedProject={setSelectedProject}
+              projects={projects}
+              refreshProjects={fetchProjects}
+            />
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Your Projects</CardTitle>
@@ -41,19 +57,6 @@ export default function Home() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Log a Session</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SessionTimer
-              selectedProject={selectedProject}
-              setSelectedProject={setSelectedProject}
-              projects={projects}
-              refreshProjects={fetchProjects}
-            />
-          </CardContent>
-        </Card>
         
         <Card>
           <CardContent className="pt-6">

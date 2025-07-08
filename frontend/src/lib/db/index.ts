@@ -2,4 +2,5 @@
 export * from './user';
 export * from './project';
 export * from './session';
-export * from './types'; 
+export * from './types';
+export * from './earnings'; 

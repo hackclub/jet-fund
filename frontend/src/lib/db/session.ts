@@ -27,7 +27,7 @@ export async function getSessionByRecordId(id: string): Promise<Session | null> 
 // Get unfinished session for a user
 export async function getUnfinishedSessionForUser(userId: string): Promise<Session | null> {
   const records = await base(SESSIONS_TABLE).select({
-    filterByFormula: `AND(user = '${userId}', endTime = '')`,
+    filterByFormula: `AND(userId = '${userId}', endTime = '')`,
     view: AIRTABLE_VIEW,
   }).all();
   if (records.length === 0) {

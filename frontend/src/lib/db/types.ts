@@ -6,6 +6,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   birthday?: string;
+  spentUsd?: number; // Amount spent by the user
   // Address fields are stored but never returned to client for security
   addressLine1?: string;
   addressLine2?: string;
@@ -21,8 +22,10 @@ export interface Project {
   id: string;
   name: string;
   user: string[]; // Linked User record IDs (usually length 1)
-  status: "active" | "finished";
+  status: "active" | "finished" | "approved";
   sessions: string[]; // Linked Session record IDs
+  // Readonly field for Airtable formula search - userId (from user field)
+  // readonly userId: string; // Extracted from user[0] for search purposes
   // Submission fields (only present when status is "finished")
   playableUrl?: string;
   codeUrl?: string;
@@ -38,4 +41,7 @@ export interface Session {
   endTime: string;   // ISO string
   gitCommitUrl: string;
   imageUrl: string; // Airtable attachment URL
+  // Readonly fields for Airtable formula search
+  // readonly userId: string; // Extracted from user[0] for search purposes
+  // readonly projectId: string; // Extracted from project[0] for search purposes
 } 

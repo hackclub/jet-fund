@@ -197,7 +197,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             <CardHeader>
               <CardTitle>Address Information</CardTitle>
               <CardDescription>
-                If you've already set an address, it won't be shown here for security reasons.
+                If you&apos;ve already set an address, it won&apos;t be shown here for security reasons.
               </CardDescription>
             </CardHeader>
             <CardContent>

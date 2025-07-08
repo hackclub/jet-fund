@@ -12,7 +12,6 @@ import Slack from "next-auth/providers/slack"
 import { ensureUser } from "@/lib/db/user"
 
 // --- Type augmentation to add accessToken to the Session type ---
-import type { Session } from "next-auth"
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
