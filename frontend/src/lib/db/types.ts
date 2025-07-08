@@ -3,6 +3,16 @@ export interface User {
   slackId: string;
   name: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  birthday?: string;
+  // Address fields are stored but never returned to client for security
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
   projects: string[]; // Linked Project record IDs
   sessions: string[]; // Linked Session record IDs
 }

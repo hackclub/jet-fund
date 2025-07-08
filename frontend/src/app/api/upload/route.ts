@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
 
     if (!cdnResponse.ok) {
       console.log(`CDN upload failed: ${await cdnResponse.text()} | Bucky URL: ${buckyUrl}`);
+      // todo: if there are parentheses in the filename it becomes something like this and fails:  https://imgutil.s3.us-east-2.amazonaws.com/5df74db86e0ca8f43f9eebbf533ad4fcba8437266fb01e43aab71c3249c02e27/RowanToldMeToSubmitAPictureOfACat%281%!j(MISSING)pg
       return NextResponse.json(
         { error: "CDN upload failed" },
         { status: cdnResponse.status }

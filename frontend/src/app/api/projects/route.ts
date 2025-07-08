@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { base, PROJECTS_TABLE } from "@/lib/db/airtable";
-import { getAirtableUserById } from "@/lib/db/user";
+import { getUserByRecordId } from "@/lib/db/user";
 
 // Helper to fetch projects by array of IDs
 async function getProjectsByIds(ids: string[]) {
@@ -13,7 +13,7 @@ async function getProjectsByIds(ids: string[]) {
 export async function GET() {
   const user = await getUser();
   if (!user || !user.airtableId) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
-  const fullUser = await getAirtableUserById(user.airtableId);
+  const fullUser = await getUserByRecordId(user.airtableId);
   if (!fullUser || !fullUser.projects) return NextResponse.json({ projects: [] });
   const projects = await getProjectsByIds(fullUser.projects);
   return NextResponse.json({ projects });

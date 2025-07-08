@@ -9,7 +9,7 @@
 
 import NextAuth from "next-auth"
 import Slack from "next-auth/providers/slack"
-import { findOrCreateAirtableUser } from "@/lib/db/user"
+import { ensureUser } from "@/lib/db/user"
 
 // --- Type augmentation to add accessToken to the Session type ---
 import type { Session } from "next-auth"
@@ -39,7 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.sub = profile.sub!;
         // Ensure Airtable user exists and load into token
         try {
-          const user = await findOrCreateAirtableUser({ slackId: profile.sub! });
+          const user = await ensureUser({ slackId: profile.sub! });
           token.airtableId = user.id;
         } catch (err) {
           console.error("Airtable user ensure error (jwt):", err);
