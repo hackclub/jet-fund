@@ -6,7 +6,7 @@ import prettyMs from "pretty-ms";
 interface SessionTimerProps {
   selectedProject: string;
   setSelectedProject: (id: string) => void;
-  projects: Pick<Project, 'id' | 'name'>[];
+  projects: Project[];
 }
 
 export default function SessionTimer({ selectedProject, setSelectedProject, projects }: SessionTimerProps) {
@@ -66,6 +66,10 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         }, 1000);
       } else {
         setMessage(data.error || "Failed to start session.");
+        // If it's a submitted project error, clear the selection
+        if (data.error && data.error.includes("submitted project")) {
+          setSelectedProject("");
+        }
       }
     } catch (err) {
       setMessage("Network error.");
@@ -165,10 +169,20 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           >
             <option value="" disabled>Select a project</option>
             {projects.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+              <option key={p.id} value={p.id} disabled={p.status === 'finished'}>
+                {p.name} {p.status === 'finished' ? '(Submitted)' : ''}
+              </option>
             ))}
           </select>
-          <Button type="submit" disabled={loading || !selectedProject}>
+          {selectedProject && projects.find(p => p.id === selectedProject)?.status === 'finished' && (
+            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+              <strong>Project Submitted:</strong> This project has been submitted and cannot accept new sessions.
+            </div>
+          )}
+          <Button 
+            type="submit" 
+            disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status === 'finished'}
+          >
             {loading ? "Starting..." : "Start Session"}
           </Button>
         </form>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/lib/db/airtable";
+import { updateSession } from "@/lib/db/session";
 import { getUser } from "@/lib/auth";
 
 export const config = {

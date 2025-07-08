@@ -10,6 +10,8 @@ export const SESSIONS_TABLE = "Sessions";
 
 export const PROJECTS_TABLE = "Projects";
 
+export const AIRTABLE_VIEW = "Grid view";
+
 import type { Session } from "./types";
 
 /**

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
-import { base, PROJECTS_TABLE } from "@/lib/db/airtable";
+import { getProjectByRecordId, updateProject, deleteProject } from "@/lib/db/project";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();
@@ -9,14 +9,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!body.name) return NextResponse.json({ error: "Missing name." }, { status: 400 });
   
   const { id } = await params;
+  
   // Check ownership
-  const record = await base(PROJECTS_TABLE).find(id);
-  if (!record || !(record.get("user") as string[]).includes(user.airtableId)) {
+  const project = await getProjectByRecordId(id);
+  if (!project || !project.user.includes(user.airtableId)) {
     return NextResponse.json({ error: "Not authorized." }, { status: 403 });
   }
-  const updated = await base(PROJECTS_TABLE).update([{ id, fields: { name: body.name } }]);
-  const project = { id: updated[0].id, name: updated[0].get("name") as string };
-  return NextResponse.json({ project });
+  
+  const updated = await updateProject(id, { name: body.name });
+  if (!updated) {
+    return NextResponse.json({ error: "Failed to update project." }, { status: 500 });
+  }
+  
+  return NextResponse.json({ project: updated });
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -24,11 +29,22 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!user || !user.airtableId) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   
   const { id } = await params;
+  
   // Check ownership
-  const record = await base(PROJECTS_TABLE).find(id);
-  if (!record || !(record.get("user") as string[]).includes(user.airtableId)) {
+  const project = await getProjectByRecordId(id);
+  if (!project || !project.user.includes(user.airtableId)) {
     return NextResponse.json({ error: "Not authorized." }, { status: 403 });
   }
-  await base(PROJECTS_TABLE).destroy([id]);
+  
+  // Prevent deletion of submitted projects
+  if (project.status === "finished") {
+    return NextResponse.json({ error: "Cannot delete a submitted project." }, { status: 400 });
+  }
+  
+  const success = await deleteProject(id);
+  if (!success) {
+    return NextResponse.json({ error: "Failed to delete project." }, { status: 500 });
+  }
+  
   return NextResponse.json({ success: true });
 } 

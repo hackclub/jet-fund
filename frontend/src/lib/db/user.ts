@@ -26,7 +26,8 @@ function recordToUser(record: AirtableRecord<FieldSet>): User {
   };
 }
 
-// 1. getUserByRecordId -> User
+// Get the full user object by Airtable record ID.
+// WARNING: This returns the full user object, including address fields.
 export async function getUserByRecordId(id: string): Promise<User | null> {
   try {
     const record = await base(USERS_TABLE).find(id);
@@ -37,7 +38,8 @@ export async function getUserByRecordId(id: string): Promise<User | null> {
   }
 }
 
-// 2. getUserBySlackId -> User
+// Get the full user object by Slack ID.
+// WARNING: This returns the full user object, including address fields.
 export async function getUserBySlackId(slackId: string): Promise<User | null> {
   try {
     const records = await base(USERS_TABLE).select({
@@ -51,7 +53,7 @@ export async function getUserBySlackId(slackId: string): Promise<User | null> {
   }
 }
 
-// 3. sanitizeUser -> UserSanitized
+// Get the sanitized user object, excluding address fields.
 export function sanitizeUser(user: User): UserSanitized {
   // Explicitly pick only non-address fields for security
   return {

@@ -67,5 +67,5 @@ export async function getUser() {
   return {
     id: session.user.id, // Slack ID
     airtableId: session.user.airtableId, // Airtable record ID
-  };
+  }; 
 }

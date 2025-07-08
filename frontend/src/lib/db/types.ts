@@ -24,6 +24,11 @@ export interface Project {
   status: "active" | "finished";
   totalHours: number;
   sessions: string[]; // Linked Session record IDs
+  // Submission fields (only present when status is "finished")
+  playableUrl?: string;
+  codeUrl?: string;
+  screenshotUrl?: string;
+  description?: string;
 }
 
 export interface Session {

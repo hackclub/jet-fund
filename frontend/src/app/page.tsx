@@ -10,7 +10,7 @@ import type { Project } from "@/lib/db/types";
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<string>("");
-  const [projects, setProjects] = useState<Pick<Project, 'id' | 'name'>[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
 
   const fetchProjects = useCallback(async () => {

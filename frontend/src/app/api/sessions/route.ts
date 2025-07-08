@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSession, getUnfinishedSessionForUser } from "@/lib/db/airtable";
+import { createSession, getUnfinishedSessionForUser } from "@/lib/db/session";
 import { getUser } from "@/lib/auth";
 
 // export async function POST(req: NextRequest) {
