@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import localFont from 'next/font/local'
 import { Plane } from "lucide-react";
-import { SessionProvider } from "next-auth/react"
 import Link from 'next/link';
 
 

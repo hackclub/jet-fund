@@ -22,7 +22,6 @@ export interface Project {
   name: string;
   user: string[]; // Linked User record IDs (usually length 1)
   status: "active" | "finished";
-  totalHours: number;
   sessions: string[]; // Linked Session record IDs
   // Submission fields (only present when status is "finished")
   playableUrl?: string;

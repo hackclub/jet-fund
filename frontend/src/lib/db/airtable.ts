@@ -76,7 +76,7 @@ export async function getUnfinishedSessionForUser(userId: string) {
   const records = await base(SESSIONS_TABLE).select({
     filterByFormula: `AND(userId = '${userId}', OR(endTime = '', NOT(endTime)))`,
     maxRecords: 1,
-    view: 'Grid view',
+    view: AIRTABLE_VIEW,
   }).firstPage();
   if (records.length === 0) return null;
   const record = records[0];
@@ -108,7 +108,7 @@ export async function getSessionById(sessionId: string): Promise<Session | null>
       gitCommitUrl: record.get("gitCommitUrl") as string,
       imageUrl: record.get("imageUrl") as string,
     };
-  } catch (err) {
+  } catch {
     return null;
   }
 } 

@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     };
     const session = await createSession(sessionData);
     return NextResponse.json({ success: true, session });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to start session." }, { status: 500 });
   }
 } 

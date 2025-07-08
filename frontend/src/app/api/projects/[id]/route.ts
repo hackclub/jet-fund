@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { getProjectByRecordId, updateProject, deleteProject } from "@/lib/db/project";
+// import { getTotalTimeForProject } from "@/lib/db/session";
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await getUser();
+  if (!user || !user.airtableId) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+
+  // Only handle GET for project details here
+  const project = await getProjectByRecordId(id);
+  if (!project || !project.user.includes(user.airtableId)) {
+    return NextResponse.json({ error: "Not authorized." }, { status: 403 });
+  }
+
+  return NextResponse.json({ project });
+}
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getUser();

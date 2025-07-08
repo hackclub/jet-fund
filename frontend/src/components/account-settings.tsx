@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface PersonalInfo {
   email: string;
@@ -140,148 +144,128 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Personal Information Section */}
-          <div className="bg-white rounded-lg border p-6">
-            <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={personalInfo.email}
-                  onChange={(e) => setPersonalInfo(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    value={personalInfo.email}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, email: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    type="text"
+                    id="firstName"
+                    value={personalInfo.firstName}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, firstName: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    type="text"
+                    id="lastName"
+                    value={personalInfo.lastName}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, lastName: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthday">Birthday</Label>
+                  <Input
+                    type="date"
+                    id="birthday"
+                    value={personalInfo.birthday}
+                    onChange={(e) => setPersonalInfo(prev => ({ ...prev, birthday: e.target.value }))}
+                  />
+                </div>
               </div>
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium mb-1">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  value={personalInfo.firstName}
-                  onChange={(e) => setPersonalInfo(prev => ({ ...prev, firstName: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  value={personalInfo.lastName}
-                  onChange={(e) => setPersonalInfo(prev => ({ ...prev, lastName: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="birthday" className="block text-sm font-medium mb-1">
-                  Birthday
-                </label>
-                <input
-                  type="date"
-                  id="birthday"
-                  value={personalInfo.birthday}
-                  onChange={(e) => setPersonalInfo(prev => ({ ...prev, birthday: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Address Information Section */}
-          <div className="bg-white rounded-lg border p-6">
-            <h3 className="text-lg font-semibold mb-4">Address Information</h3>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="addressLine1" className="block text-sm font-medium mb-1">
-                  Address (Line 1)
-                </label>
-                <input
-                  type="text"
-                  id="addressLine1"
-                  value={addressInfo.addressLine1}
-                  onChange={(e) => setAddressInfo(prev => ({ ...prev, addressLine1: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="addressLine2" className="block text-sm font-medium mb-1">
-                  Address (Line 2) <span className="text-muted-foreground">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  id="addressLine2"
-                  value={addressInfo.addressLine2}
-                  onChange={(e) => setAddressInfo(prev => ({ ...prev, addressLine2: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="city" className="block text-sm font-medium mb-1">
-                    City
-                  </label>
-                  <input
+          <Card>
+            <CardHeader>
+              <CardTitle>Address Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="addressLine1">Address (Line 1)</Label>
+                  <Input
                     type="text"
-                    id="city"
-                    value={addressInfo.city}
-                    onChange={(e) => setAddressInfo(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    id="addressLine1"
+                    value={addressInfo.addressLine1}
+                    onChange={(e) => setAddressInfo(prev => ({ ...prev, addressLine1: e.target.value }))}
                     required
                   />
                 </div>
-                <div>
-                  <label htmlFor="state" className="block text-sm font-medium mb-1">
-                    State / Province
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="addressLine2">
+                    Address (Line 2) <span className="text-muted-foreground">(Optional)</span>
+                  </Label>
+                  <Input
                     type="text"
-                    id="state"
-                    value={addressInfo.state}
-                    onChange={(e) => setAddressInfo(prev => ({ ...prev, state: e.target.value }))}
-                    className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
+                    id="addressLine2"
+                    value={addressInfo.addressLine2}
+                    onChange={(e) => setAddressInfo(prev => ({ ...prev, addressLine2: e.target.value }))}
                   />
                 </div>
-                <div>
-                  <label htmlFor="postalCode" className="block text-sm font-medium mb-1">
-                    ZIP / Postal Code
-                  </label>
-                  <input
-                    type="text"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      type="text"
+                      id="city"
+                      value={addressInfo.city}
+                      onChange={(e) => setAddressInfo(prev => ({ ...prev, city: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State / Province</Label>
+                    <Input
+                      type="text"
+                      id="state"
+                      value={addressInfo.state}
+                      onChange={(e) => setAddressInfo(prev => ({ ...prev, state: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode">ZIP / Postal Code</Label>
+                    <Input
+                      type="text"
                       id="postalCode"
-                    value={addressInfo.postalCode}
-                    onChange={(e) => setAddressInfo(prev => ({ ...prev, postalCode: e.target.value }))}
-                    className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="country" className="block text-sm font-medium mb-1">
-                    Country
-                  </label>
-                  <input
-                    type="text"
-                    id="country"
-                    value={addressInfo.country}
-                    onChange={(e) => setAddressInfo(prev => ({ ...prev, country: e.target.value }))}
-                    className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                      value={addressInfo.postalCode}
+                      onChange={(e) => setAddressInfo(prev => ({ ...prev, postalCode: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      type="text"
+                      id="country"
+                      value={addressInfo.country}
+                      onChange={(e) => setAddressInfo(prev => ({ ...prev, country: e.target.value }))}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Submit Button */}
           <div className="flex flex-col gap-2">
@@ -290,15 +274,15 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             </Button>
             
             {message && (
-              <div className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-md p-3">
-                {message}
-              </div>
+              <Alert>
+                <AlertDescription>{message}</AlertDescription>
+              </Alert>
             )}
             
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-                {error}
-              </div>
+              <Alert>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
           </div>
         </form>

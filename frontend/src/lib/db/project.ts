@@ -1,4 +1,4 @@
-import { base, PROJECTS_TABLE } from "@/lib/db/airtable";
+import { base, PROJECTS_TABLE, AIRTABLE_VIEW } from "@/lib/db/airtable";
 import type { FieldSet, Record as AirtableRecord } from "airtable";
 import type { Project } from "@/lib/db/types";
 
@@ -9,7 +9,6 @@ function recordToProject(record: AirtableRecord<FieldSet>): Project {
     name: record.get('name') as string,
     user: record.get('user') as string[] || [],
     status: record.get('status') as "active" | "finished" || "active",
-    totalHours: record.get('totalHours') as number || 0,
     sessions: record.get('sessions') as string[] || [],
     // Submission fields (only present when status is "finished")
     playableUrl: record.get('playableUrl') as string | undefined,
@@ -35,6 +34,7 @@ export async function getProjectsByUserId(userId: string): Promise<Project[]> {
   try {
     const records = await base(PROJECTS_TABLE).select({
       filterByFormula: `userId = '${userId}'`,
+      view: AIRTABLE_VIEW,
     }).all();
     return records.map(recordToProject);
   } catch (err) {
@@ -57,7 +57,6 @@ export async function createProject(data: {
           name: data.name,
           user: data.user,
           status: "active",
-          totalHours: 0,
         }
       }
     ]);
@@ -81,7 +80,7 @@ export async function updateProject(
   }
 ): Promise<Project | null> {
   try {
-    const updateFields: Record<string, any> = {};
+    const updateFields: Record<string, string | number | boolean> = {};
     
     if (data.name !== undefined) updateFields.name = data.name;
     if (data.status !== undefined) updateFields.status = data.status;

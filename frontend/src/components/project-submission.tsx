@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Project } from "@/lib/db/types";
 
 interface ProjectSubmissionProps {
@@ -69,7 +74,7 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
       } else {
         setError(result.error || "Failed to submit project");
       }
-    } catch (err) {
+    } catch {
       setError("Network error occurred");
     } finally {
       setLoading(false);
@@ -77,96 +82,79 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Submit Project: {project.name}</h2>
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Submit Project: {project.name}</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="playableUrl">Playable URL *</Label>
+            <Input
+              type="url"
+              id="playableUrl"
+              value={formData.playableUrl}
+              onChange={(e) => setFormData(prev => ({ ...prev, playableUrl: e.target.value }))}
+              placeholder="https://your-project.vercel.app"
+              required
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="playableUrl" className="block text-sm font-medium mb-2">
-                Playable URL *
-              </label>
-              <input
-                type="url"
-                id="playableUrl"
-                value={formData.playableUrl}
-                onChange={(e) => setFormData(prev => ({ ...prev, playableUrl: e.target.value }))}
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="https://your-project.vercel.app"
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="codeUrl">Code Repository URL *</Label>
+            <Input
+              type="url"
+              id="codeUrl"
+              value={formData.codeUrl}
+              onChange={(e) => setFormData(prev => ({ ...prev, codeUrl: e.target.value }))}
+              placeholder="https://github.com/username/project"
+              required
+            />
+          </div>
 
-            <div>
-              <label htmlFor="codeUrl" className="block text-sm font-medium mb-2">
-                Code Repository URL *
-              </label>
-              <input
-                type="url"
-                id="codeUrl"
-                value={formData.codeUrl}
-                onChange={(e) => setFormData(prev => ({ ...prev, codeUrl: e.target.value }))}
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="https://github.com/username/project"
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="screenshot">Screenshot *</Label>
+            <Input
+              type="file"
+              id="screenshot"
+              accept="image/*"
+              onChange={(e) => setFormData(prev => ({ ...prev, screenshot: e.target.files?.[0] || null }))}
+              required
+            />
+            <p className="text-sm text-muted-foreground">
+              Upload a screenshot of your project in action
+            </p>
+          </div>
 
-            <div>
-              <label htmlFor="screenshot" className="block text-sm font-medium mb-2">
-                Screenshot *
-              </label>
-              <input
-                type="file"
-                id="screenshot"
-                accept="image/*"
-                onChange={(e) => setFormData(prev => ({ ...prev, screenshot: e.target.files?.[0] || null }))}
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Upload a screenshot of your project in action
-              </p>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Description *</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              rows={4}
+              placeholder="Describe your project, what it does, technologies used, etc."
+              required
+            />
+          </div>
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-2">
-                Description *
-              </label>
-              <textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={4}
-                placeholder="Describe your project, what it does, technologies used, etc."
-                required
-              />
-            </div>
+          {error && (
+            <Alert>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-                {error}
-              </div>
-            )}
-
-            <div className="flex gap-3 justify-end">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Submitting..." : "Submit Project"}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          <div className="flex gap-3 justify-end">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Project"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 } 

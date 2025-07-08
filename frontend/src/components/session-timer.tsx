@@ -1,7 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import type { Project } from "@/lib/db/types";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import prettyMs from "pretty-ms";
+import type { Project } from "@/lib/db/types";
 
 interface SessionTimerProps {
   selectedProject: string;
@@ -12,7 +16,6 @@ interface SessionTimerProps {
 
 export default function SessionTimer({ selectedProject, setSelectedProject, projects, refreshProjects }: SessionTimerProps) {
   const [timerActive, setTimerActive] = useState(false);
-  const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [gitCommitUrl, setGitCommitUrl] = useState("");
@@ -33,7 +36,6 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         // Use the session data from the API response
         const session = data.session;
         const started = new Date(session.startTime);
-        setStartTime(started);
         setTimerActive(true);
         setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         interval = setInterval(() => {
@@ -44,7 +46,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     }
     checkUnfinished();
     return () => { if (interval) clearInterval(interval); };
-  }, []);
+  }, [setSelectedProject]);
 
   // Clear selected project if it becomes submitted
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         setSelectedProject("");
       }
     }
-  }, [projects, selectedProject]);
+  }, [projects, selectedProject, setSelectedProject]);
 
   async function startTimer() {
     setLoading(true);
@@ -69,7 +71,6 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       if (res.ok && data.success) {
         setSessionId(data.session.id);
         const started = new Date(data.session.startTime);
-        setStartTime(started);
         setTimerActive(true);
         setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         intervalRef.current = setInterval(() => {
@@ -82,7 +83,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           setSelectedProject("");
         }
       }
-    } catch (err) {
+    } catch {
       setStatusMessage("Network error.");
     } finally {
       setLoading(false);
@@ -122,7 +123,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     if (image) {
       try {
         imageUrl = await uploadImage(image);
-      } catch (err) {
+      } catch {
         setStatusMessage("Image upload failed.");
         setLoading(false);
         return;
@@ -145,7 +146,6 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         setShowForm(false);
         setGitCommitUrl("");
         setImage(null);
-        setStartTime(null);
         setElapsed(0);
         setSessionId(null);
         setTimerActive(false);
@@ -157,84 +157,104 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       } else {
         setStatusMessage(data.error || "Failed to log session.");
       }
-    } catch (err) {
+    } catch {
       setStatusMessage("Network error.");
     } finally {
       setLoading(false);
     }
   }
 
-
   return (
     <div className="flex flex-col gap-4 max-w-md mx-auto">
       {!timerActive && !showForm && (
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            startTimer();
-          }}
-          className="flex flex-col gap-2"
-        >
-          <select
-            value={selectedProject}
-            onChange={e => setSelectedProject(e.target.value)}
-            required
-            className="border px-2 py-1 rounded"
-          >
-            <option value="" disabled>Select a project</option>
-            {projects.map(p => (
-              <option key={p.id} value={p.id} disabled={p.status === 'finished'}>
-                {p.name} {p.status === 'finished' ? '(Submitted)' : ''}
-              </option>
-            ))}
-          </select>
-          {selectedProject && projects.find(p => p.id === selectedProject)?.status === 'finished' && (
-            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-              <strong>Project Submitted:</strong> This project has been submitted and cannot accept new sessions.
-            </div>
-          )}
-          <Button 
-            type="submit" 
-            disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status === 'finished'}
-          >
-            {loading ? "Starting..." : "Start Session"}
-          </Button>
-        </form>
+        <Card>
+          <CardContent className="pt-6">
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                startTimer();
+              }}
+              className="flex flex-col gap-4"
+            >
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map(p => (
+                    <SelectItem key={p.id} value={p.id} disabled={p.status === 'finished'}>
+                      {p.name} {p.status === 'finished' ? '(Submitted)' : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {selectedProject && projects.find(p => p.id === selectedProject)?.status === 'finished' && (
+                <Alert>
+                  <AlertDescription>
+                    <strong>Project Submitted:</strong> This project has been submitted and cannot accept new sessions.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <Button 
+                type="submit" 
+                disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status === 'finished'}
+                className="w-full"
+              >
+                {loading ? "Starting..." : "Start Session"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       )}
+      
       {timerActive && (
-        <div className="flex flex-col gap-2 items-center">
-          <div className="text-2xl font-mono">{prettyMs(elapsed * 1000, { verbose: true })}</div>
-          <Button onClick={stopTimer} variant="secondary">Finish Session</Button>
-          <div className="text-sm text-muted-foreground">
-            Working on <strong>{projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'}</strong>
-          </div>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-4 items-center">
+              <div className="text-2xl font-mono">{prettyMs(elapsed * 1000, { verbose: true })}</div>
+              <Button onClick={stopTimer} variant="secondary" className="w-full">Finish Session</Button>
+              <div className="text-sm text-muted-foreground text-center">
+                Working on <strong>{projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'}</strong>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
+      
       {showForm && (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <input
-            type="url"
-            placeholder="Git commit URL"
-            value={gitCommitUrl}
-            onChange={e => setGitCommitUrl(e.target.value)}
-            required
-            className="border px-2 py-1 rounded"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={e => setImage(e.target.files?.[0] || null)}
-            required
-            className="border px-2 py-1 rounded"
-          />
-          <Button type="submit" disabled={loading}>
-            {loading ? "Logging..." : "Submit Session"}
-          </Button>
-          {statusMessage && <span className="text-xs text-muted-foreground">{statusMessage}</span>}
-        </form>
+        <Card>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <Input
+                type="url"
+                placeholder="Git commit URL"
+                value={gitCommitUrl}
+                onChange={e => setGitCommitUrl(e.target.value)}
+                required
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={e => setImage(e.target.files?.[0] || null)}
+                required
+              />
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? "Logging..." : "Submit Session"}
+              </Button>
+              {statusMessage && (
+                <p className="text-sm text-muted-foreground text-center">{statusMessage}</p>
+              )}
+            </form>
+          </CardContent>
+        </Card>
       )}
+      
       {!timerActive && !showForm && statusMessage && (
-        <span className="text-xs text-muted-foreground">{statusMessage}</span>
+        <Alert>
+          <AlertDescription>{statusMessage}</AlertDescription>
+        </Alert>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { base, USERS_TABLE } from "@/lib/db/airtable";
+import { base, USERS_TABLE, AIRTABLE_VIEW } from "@/lib/db/airtable";
 import type { FieldSet, Record as AirtableRecord } from "airtable";
 import type { User } from "@/lib/db/types";
 
@@ -45,6 +45,7 @@ export async function getUserBySlackId(slackId: string): Promise<User | null> {
     const records = await base(USERS_TABLE).select({
       filterByFormula: `slackId = '${slackId}'`,
       maxRecords: 1,
+      view: AIRTABLE_VIEW,
     }).firstPage();
     return records.length > 0 ? recordToUser(records[0]) : null;
   } catch (err) {

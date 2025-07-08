@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import ProjectSubmission from "@/components/project-submission";
 import type { Project } from "@/lib/db/types";
@@ -12,19 +16,20 @@ interface ProjectManagerProps {
   refreshProjects: () => Promise<void>;
 }
 
-export default function ProjectManager({ onSelect, selectedProject, projects, setProjects, refreshProjects }: ProjectManagerProps) {
+export default function ProjectManager({ onSelect, selectedProject, projects, refreshProjects }: ProjectManagerProps) {
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; projectId: string | null; projectName: string }>({
-    isOpen: false,
-    projectId: null,
-    projectName: "",
-  });
-  const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
   const [ongoingSession, setOngoingSession] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    projectId: string | null;
+    projectName: string;
+  }>({ isOpen: false, projectId: null, projectName: "" });
+  const [projectHours, setProjectHours] = useState<Record<string, number | null>>({});
 
   async function handleCreate() {
     if (!newName.trim()) return;
@@ -93,11 +98,27 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
         } else {
           setOngoingSession(null);
         }
-      } catch (err) {
-        console.error("Failed to check ongoing session:", err);
+      } catch {
+        console.error("Failed to check ongoing session");
       }
     }
     checkOngoingSession();
+  }, [projects]);
+
+  useEffect(() => {
+    async function fetchHours() {
+      const entries = await Promise.all(projects.map(async (p) => {
+        try {
+          const res = await fetch(`/api/projects/${p.id}/total-time`);
+          const data = await res.json();
+          return [p.id, data.totalHours ?? 0];
+        } catch {
+          return [p.id, null];
+        }
+      }));
+      setProjectHours(Object.fromEntries(entries));
+    }
+    if (projects.length > 0) fetchHours();
   }, [projects]);
 
   async function handleSubmitClick(project: Project) {
@@ -110,7 +131,6 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
     // Check if user has address set before opening submission form
     try {
       const res = await fetch("/api/user/profile");
-      const data = await res.json();
       
       if (res.ok) {
         // If we get a successful response, user likely has address set
@@ -120,90 +140,100 @@ export default function ProjectManager({ onSelect, selectedProject, projects, se
       } else {
         setSubmissionError("Please set your address in Account Settings before submitting a project.");
       }
-    } catch (err) {
+    } catch {
       setSubmissionError("Failed to check address status. Please try again.");
     }
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="New project name"
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-        <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
-      </div>
+    <div className="flex flex-col gap-4">
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              placeholder="New project name"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              className="flex-1"
+            />
+            <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
+          </div>
+        </CardContent>
+      </Card>
       
       {submissionError && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-          {submissionError}
-          <button 
-            onClick={() => setSubmissionError(null)}
-            className="float-right text-red-800 hover:text-red-900"
-          >
-            ×
-          </button>
-        </div>
+        <Alert>
+          <AlertDescription className="flex items-center justify-between">
+            {submissionError}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setSubmissionError(null)}
+              className="h-auto p-0 text-muted-foreground hover:text-foreground"
+            >
+              ×
+            </Button>
+          </AlertDescription>
+        </Alert>
       )}
       
-      <ul className="divide-y">
+      <div className="space-y-2">
         {projects.map(p => (
-          <li key={p.id} className="flex items-center gap-2 py-1">
-            {editingId === p.id ? (
-              <>
-                <input
-                  type="text"
-                  value={editingName}
-                  onChange={e => setEditingName(e.target.value)}
-                  className="border px-2 py-1 rounded"
-                />
-                <Button onClick={() => handleEdit(p.id)} disabled={loading || !editingName.trim()}>Save</Button>
-                <Button onClick={() => { setEditingId(null); setEditingName(""); }} variant="secondary">Cancel</Button>
-              </>
-            ) : (
-              <>
-                <span
-                  className={`${onSelect && p.status === 'active' ? "cursor-pointer hover:underline" : ""} ${
-                    p.status === 'finished' ? "text-gray-500" : ""
-                  }`}
-                  onClick={() => onSelect && p.status === 'active' && onSelect(p.id)}
-                  style={{ fontWeight: selectedProject === p.id ? "bold" : undefined }}
-                >
-                  {p.name}
-                </span>
-                <span className={`px-2 py-1 text-xs rounded ${
-                  p.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {p.status === 'active' ? 'Active' : 'Submitted'}
-                </span>
-                {ongoingSession === p.id && (
-                  <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">
-                    Session Active
-                  </span>
-                )}
-                {p.status === 'active' && (
+          <Card key={p.id}>
+            <CardContent className="pt-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
+                {editingId === p.id ? (
                   <>
-                    <Button onClick={() => { setEditingId(p.id); setEditingName(p.name); }} variant="secondary">Edit</Button>
-                    <Button 
-                      onClick={() => handleSubmitClick(p)} 
-                      disabled={loading || ongoingSession === p.id} 
-                      variant="outline"
-                      title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
+                    <Input
+                      type="text"
+                      value={editingName}
+                      onChange={e => setEditingName(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={() => handleEdit(p.id)} disabled={loading || !editingName.trim()}>Save</Button>
+                    <Button onClick={() => { setEditingId(null); setEditingName(""); }} variant="secondary">Cancel</Button>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className={`flex-1 break-words ${onSelect && p.status === 'active' ? "cursor-pointer hover:underline" : ""} ${
+                        p.status === 'finished' ? "text-muted-foreground" : ""
+                      }`}
+                      onClick={() => onSelect && p.status === 'active' && onSelect(p.id)}
+                      style={{ fontWeight: selectedProject === p.id ? "bold" : undefined }}
                     >
-                      Submit
-                    </Button>
-                    <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive">Delete</Button>
+                      {p.name}
+                    </span>
+                    <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {projectHours[p.id] == null ? 'Loading...' : `${projectHours[p.id]} hours`}</span>
+                    <Badge variant={p.status === 'active' ? 'default' : 'secondary'}>
+                      {p.status === 'active' ? 'Active' : 'Submitted'}
+                    </Badge>
+                    {ongoingSession === p.id && (
+                      <Badge variant="outline">Session Active</Badge>
+                    )}
+                    {p.status === 'active' && (
+                      <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                        <Button onClick={() => { setEditingId(p.id); setEditingName(p.name); }} variant="secondary" size="sm">Edit</Button>
+                        <Button 
+                          onClick={() => handleSubmitClick(p)} 
+                          disabled={loading || ongoingSession === p.id} 
+                          variant="outline"
+                          size="sm"
+                          title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
+                        >
+                          Submit
+                        </Button>
+                        <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive" size="sm">Delete</Button>
+                      </div>
+                    )}
                   </>
                 )}
-              </>
-            )}
-          </li>
+              </div>
+            </CardContent>
+          </Card>
         ))}
-      </ul>
+      </div>
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog

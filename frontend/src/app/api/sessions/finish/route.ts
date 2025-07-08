@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       imageUrl: body.imageUrl,
     });
     return NextResponse.json({ success: true, session: updated });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to finish session." }, { status: 500 });
   }
 } 
