@@ -5,7 +5,7 @@ import SessionTimer from "@/components/session-timer";
 import ProjectManager from "@/components/project-manager";
 import AccountSettings from "@/components/account-settings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect, useCallback } from "react";
 import type { Project } from "@/lib/db/types";
 
@@ -75,6 +75,7 @@ export default function Home() {
         {/* Account Settings Modal */}
         <Dialog open={showAccountSettings} onOpenChange={setShowAccountSettings}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogTitle>Account Settings</DialogTitle>
             <AccountSettings onClose={() => setShowAccountSettings(false)} />
           </DialogContent>
         </Dialog>
