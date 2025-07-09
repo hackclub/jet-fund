@@ -24,6 +24,7 @@ function recordToUser(record: AirtableRecord<FieldSet>): User {
     country: record.get('country') as string | undefined,
     projects: record.get('projects') as string[] || [],
     sessions: record.get('sessions') as string[] || [],
+    sessionsInvalidatedAt: record.get('sessionsInvalidatedAt') as string | undefined,
   };
 }
 
@@ -148,6 +149,30 @@ export async function updateUserProfile(
     return recordToUser(record);
   } catch (err) {
     console.error("Error updating user profile:", err);
+    return null;
+  }
+}
+
+/**
+ * Invalidates all sessions for a user by updating the sessionsInvalidatedAt timestamp.
+ * Any JWT issued before this timestamp will be considered invalid.
+ * Returns the updated user or null if failed.
+ */
+export async function invalidateUserSessions(userId: string): Promise<User | null> {
+  try {
+    const updated = await base(USERS_TABLE).update([
+      {
+        id: userId,
+        fields: {
+          sessionsInvalidatedAt: new Date().toISOString(),
+        },
+      },
+    ]);
+
+    const record = updated[0];
+    return recordToUser(record);
+  } catch (err) {
+    console.error("Error invalidating user sessions:", err);
     return null;
   }
 } 

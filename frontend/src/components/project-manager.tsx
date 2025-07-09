@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import ProjectSubmission from "@/components/project-submission";
 import ProjectDetailsModal from "@/components/project-details-modal";
 import type { Project } from "@/lib/db/types";
@@ -26,11 +25,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
   const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
   const [ongoingSession, setOngoingSession] = useState<string | null>(null);
   const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<Project | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{
-    isOpen: boolean;
-    projectId: string | null;
-    projectName: string;
-  }>({ isOpen: false, projectId: null, projectName: "" });
+
 
   async function handleCreate() {
     if (!newName.trim()) return;
@@ -49,25 +44,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
 
 
 
-  async function handleDelete(id: string) {
-    setLoading(true);
-    const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      const data = await res.json();
-      alert(data.error || "Failed to delete project");
-    } else {
-      await refreshProjects();
-    }
-    setLoading(false);
-  }
 
-  function confirmDelete(id: string, name: string) {
-    setDeleteConfirm({
-      isOpen: true,
-      projectId: id,
-      projectName: name,
-    });
-  }
 
   function handleSubmissionSuccess() {
     setSubmissionProject(null);
@@ -99,20 +76,28 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
       return;
     }
 
-    // Check if user has address set before opening submission form
+    // Check if user has complete profile set before opening submission form
     try {
       const res = await fetch("/api/user/profile");
       
       if (res.ok) {
-        // If we get a successful response, user likely has address set
-        // (the API would return an error if address is missing)
+        const data = await res.json();
+        // Check if all required personal information fields are present
+        if (!data.firstName?.trim() || !data.lastName?.trim() || !data.birthday?.trim()) {
+          setSubmissionError("Please complete your profile (first name, last name, and date of birth) in Account Settings before submitting a project.");
+          return;
+        }
+        // If we get a successful response and have personal info, we can proceed
+        // (address validation will happen during actual project submission)
         setSubmissionProject(project);
         setSubmissionError(null);
       } else {
-        setSubmissionError("Please set your address in Account Settings before submitting a project.");
+        // Handle HTTP error responses (401, 404, 500, etc.)
+        setSubmissionError("Failed to check profile status. Please try again.");
       }
     } catch {
-      setSubmissionError("Failed to check address status. Please try again.");
+      // Handle network-level errors (no internet, DNS failure, etc.)
+      setSubmissionError("Failed to check profile status. Please try again.");
     }
   }
 
@@ -169,10 +154,14 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
                     <div className="p-1.5">
                       <Eye className="w-3.5 h-3.5" />
                     </div>
-                    <div className="w-px h-4 bg-muted"></div>
-                    <div className="p-1.5">
-                      <Pencil className="w-3.5 h-3.5" />
-                    </div>
+                    {p.status === 'active' && (
+                      <>
+                        <div className="w-px h-4 bg-muted"></div>
+                        <div className="p-1.5">
+                          <Pencil className="w-3.5 h-3.5" />
+                        </div>
+                      </>
+                    )}
                   </button>
                 </div>
                 <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {p.hoursSpent == null ? '0' : `${p.hoursSpent} hours`}</span>
@@ -197,7 +186,6 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
                     >
                       Submit
                     </Button>
-                    <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive" size="sm">Delete</Button>
                   </div>
                 )}
               </div>
@@ -206,21 +194,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
         ))}
       </div>
 
-      {/* Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={deleteConfirm.isOpen}
-        onClose={() => setDeleteConfirm({ isOpen: false, projectId: null, projectName: "" })}
-        onConfirm={() => {
-          if (deleteConfirm.projectId) {
-            handleDelete(deleteConfirm.projectId);
-          }
-        }}
-        title="Delete Project"
-        message={`Are you sure you want to delete "${deleteConfirm.projectName}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="destructive"
-      />
+
 
       {/* Project Submission Modal */}
       {submissionProject && (

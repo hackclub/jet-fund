@@ -16,6 +16,7 @@ export interface User {
   country?: string;
   projects: string[]; // Linked Project record IDs
   sessions: string[]; // Linked Session record IDs
+  sessionsInvalidatedAt?: string; // ISO timestamp for session invalidation
 }
 
 export interface Project {

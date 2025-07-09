@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface PersonalInfo {
   email: string;
@@ -46,6 +47,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [signingOutEverywhere, setSigningOutEverywhere] = useState(false);
 
   // Load user data on mount
   useEffect(() => {
@@ -86,13 +88,25 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
     setError(null);
 
     try {
+      // Only include address info if user actually filled in address fields
+      const hasAddressData = addressInfo.addressLine1?.trim() || 
+                            addressInfo.city?.trim() || 
+                            addressInfo.state?.trim() || 
+                            addressInfo.postalCode?.trim() || 
+                            addressInfo.country?.trim();
+
+      const requestBody: any = {
+        personalInfo,
+      };
+
+      if (hasAddressData) {
+        requestBody.addressInfo = addressInfo;
+      }
+
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          personalInfo,
-          addressInfo,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();
@@ -115,6 +129,34 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
       setError("Network error while updating profile");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSignOutEverywhere() {
+    if (!confirm("Are you sure you want to sign out on all devices? You'll need to sign in again on each device.")) {
+      return;
+    }
+
+    setSigningOutEverywhere(true);
+    setError(null);
+
+    try {
+      // First invalidate all sessions on the server
+      const res = await fetch("/api/user/invalidate-sessions", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        // Then sign out from current device
+        await signOut();
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to sign out everywhere");
+      }
+    } catch {
+      setError("Network error while signing out everywhere");
+    } finally {
+      setSigningOutEverywhere(false);
     }
   }
 
@@ -150,7 +192,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email *</Label>
                   <Input
                     type="email"
                     id="email"
@@ -160,7 +202,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">First Name *</Label>
                   <Input
                     type="text"
                     id="firstName"
@@ -170,7 +212,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">Last Name *</Label>
                   <Input
                     type="text"
                     id="lastName"
@@ -180,12 +222,13 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="birthday">Birthday</Label>
+                  <Label htmlFor="birthday">Birthday *</Label>
                   <Input
                     type="date"
                     id="birthday"
                     value={personalInfo.birthday}
                     onChange={(e) => setPersonalInfo(prev => ({ ...prev, birthday: e.target.value }))}
+                    required
                   />
                 </div>
               </div>
@@ -209,7 +252,6 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                     id="addressLine1"
                     value={addressInfo.addressLine1}
                     onChange={(e) => setAddressInfo(prev => ({ ...prev, addressLine1: e.target.value }))}
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -231,7 +273,6 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                       id="city"
                       value={addressInfo.city}
                       onChange={(e) => setAddressInfo(prev => ({ ...prev, city: e.target.value }))}
-                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -241,7 +282,6 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                       id="state"
                       value={addressInfo.state}
                       onChange={(e) => setAddressInfo(prev => ({ ...prev, state: e.target.value }))}
-                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -251,7 +291,6 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                       id="postalCode"
                       value={addressInfo.postalCode}
                       onChange={(e) => setAddressInfo(prev => ({ ...prev, postalCode: e.target.value }))}
-                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -261,7 +300,6 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                       id="country"
                       value={addressInfo.country}
                       onChange={(e) => setAddressInfo(prev => ({ ...prev, country: e.target.value }))}
-                      required
                     />
                   </div>
                 </div>
@@ -287,6 +325,27 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
               </Alert>
             )}
           </div>
+
+          {/* Sign Out Everywhere Section */}
+          <Separator />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-destructive">Sign Out Everywhere</CardTitle>
+              <CardDescription>
+                This will sign you out on all devices where you're currently logged in. You'll need to sign in again on each device.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="destructive" 
+                onClick={handleSignOutEverywhere}
+                disabled={signingOutEverywhere}
+                className="w-full"
+              >
+                {signingOutEverywhere ? "Signing Out..." : "Sign Out Everywhere"}
+              </Button>
+            </CardContent>
+          </Card>
         </form>
       )}
     </div>

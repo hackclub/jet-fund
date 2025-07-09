@@ -9,7 +9,7 @@
 
 import NextAuth from "next-auth"
 import Slack from "next-auth/providers/slack"
-import { ensureUser } from "@/lib/db/user"
+import { ensureUser, getUserByRecordId } from "@/lib/db/user"
 
 // --- Type augmentation to add accessToken to the Session type ---
 declare module "next-auth" {
@@ -44,12 +44,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.error("Airtable user ensure error (jwt):", err);
         }
       }
+      
+      // Check if sessions were manually invalidated
+      if (token.airtableId) {
+        try {
+          const user = await getUserByRecordId(token.airtableId as string);
+          if (user?.sessionsInvalidatedAt) {
+            const invalidationTime = new Date(user.sessionsInvalidatedAt);
+            const tokenIssuedTime = new Date((token.iat as number) * 1000);
+            
+            if (invalidationTime > tokenIssuedTime) {
+              // Session was invalidated after this token was issued
+              // Clear the token to force re-authentication
+              token = {};
+            }
+          }
+        } catch (err) {
+          console.error("Session invalidation check failed:", err);
+          // If we can't check invalidation, allow the session to continue
+          // This prevents lockouts due to database issues
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
       // 'session' callback runs whenever a session is checked or created
       // The session is the object returned to the client (browser) via auth() or useSession()
       // 'session' is what will be returned to the client, 'token' is the JWT
+
+      // If the token is empty (invalidated), return a session with user undefined to indicate unauthenticated
+      if (!token || !token.sub) {
+        return { ...session, user: undefined };
+      }
+
       session.accessToken = token.accessToken as string | undefined;
       session.user.id = token.sub as string;
       session.user.airtableId = token.airtableId as string;

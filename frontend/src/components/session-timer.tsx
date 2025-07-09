@@ -48,11 +48,11 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     return () => { if (interval) clearInterval(interval); };
   }, [setSelectedProject]);
 
-  // Clear selected project if it becomes submitted
+  // Clear selected project if it becomes non-active
   useEffect(() => {
     if (selectedProject) {
       const project = projects.find(p => p.id === selectedProject);
-      if (project && project.status === 'finished') {
+      if (project && project.status !== 'active') {
         setSelectedProject("");
       }
     }
@@ -182,24 +182,24 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id} disabled={p.status === 'finished'}>
-                      {p.name} {p.status === 'finished' ? '(Submitted)' : ''}
+                    <SelectItem key={p.id} value={p.id} disabled={p.status !== 'active'}>
+                      {p.name} {p.status !== 'active' ? `(${p.status === 'finished' ? 'Submitted' : 'Approved'})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               
-              {selectedProject && projects.find(p => p.id === selectedProject)?.status === 'finished' && (
+              {selectedProject && projects.find(p => p.id === selectedProject)?.status !== 'active' && (
                 <Alert>
                   <AlertDescription>
-                    <strong>Project Submitted:</strong> This project has been submitted and cannot accept new sessions.
+                    <strong>Project {projects.find(p => p.id === selectedProject)?.status === 'finished' ? 'Submitted' : 'Approved'}:</strong> This project cannot accept new sessions.
                   </AlertDescription>
                 </Alert>
               )}
               
               <Button 
                 type="submit" 
-                disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status === 'finished'}
+                disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status !== 'active'}
                 className="w-full"
               >
                 {loading ? "Starting..." : "Start Session"}

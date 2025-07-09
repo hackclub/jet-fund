@@ -31,6 +31,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Not authorized." }, { status: 403 });
   }
   
+  // Prevent editing of submitted/finished projects
+  if (project.status !== "active") {
+    return NextResponse.json({ error: "Cannot edit a submitted project." }, { status: 400 });
+  }
+  
   const updated = await updateProject(id, { name: body.name });
   if (!updated) {
     return NextResponse.json({ error: "Failed to update project." }, { status: 500 });
@@ -51,8 +56,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: "Not authorized." }, { status: 403 });
   }
   
-  // Prevent deletion of submitted projects
-  if (project.status === "finished") {
+  // Prevent deletion of submitted/approved projects
+  if (project.status !== "active") {
     return NextResponse.json({ error: "Cannot delete a submitted project." }, { status: 400 });
   }
   

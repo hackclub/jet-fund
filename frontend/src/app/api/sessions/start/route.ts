@@ -15,13 +15,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
     }
     
-    // Check if project is submitted (cannot log time to submitted projects)
+    // Check project ownership and status
     const project = await getProjectByRecordId(body.project);
     if (!project) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
     
-    if (project.status === "finished") {
+    // Check ownership
+    if (!project.user.includes(user.airtableId)) {
+      return NextResponse.json({ error: "Not authorized to start session for this project." }, { status: 403 });
+    }
+    
+    // Check if project is submitted/approved (cannot log time to non-active projects)
+    if (project.status !== "active") {
       return NextResponse.json({ error: "Cannot log time to a submitted project." }, { status: 400 });
     }
     

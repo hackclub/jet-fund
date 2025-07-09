@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, GitBranch, Image, ExternalLink } from "lucide-react";
+import ConfirmationDialog from "@/components/ui/confirmation-dialog";
+import { Calendar, Clock, GitBranch, Image, ExternalLink, Trash2 } from "lucide-react";
 import type { Project, Session } from "@/lib/db/types";
 
 interface ProjectDetailsModalProps {
@@ -27,6 +28,11 @@ export default function ProjectDetailsModal({
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    projectId: string | null;
+    projectName: string;
+  }>({ isOpen: false, projectId: null, projectName: "" });
 
   useEffect(() => {
     if (project && isOpen) {
@@ -74,6 +80,32 @@ export default function ProjectDetailsModal({
     }
   }
 
+  async function handleDelete(id: string) {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "Failed to delete project");
+      } else {
+        onProjectUpdate();
+        onClose();
+      }
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function confirmDelete(id: string, name: string) {
+    setDeleteConfirm({
+      isOpen: true,
+      projectId: id,
+      projectName: name,
+    });
+  }
+
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -115,14 +147,17 @@ export default function ProjectDetailsModal({
             ) : (
               <>
                 <span>{project.name}</span>
-                <Button 
-                  onClick={() => setEditing(true)} 
-                  variant="ghost" 
-                  size="sm"
-                  className="ml-auto"
-                >
-                  Edit
-                </Button>
+                {project.status === 'active' && (
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Button 
+                      onClick={() => setEditing(true)} 
+                      variant="ghost" 
+                      size="sm"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </DialogTitle>
@@ -292,7 +327,37 @@ export default function ProjectDetailsModal({
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Delete Button at the bottom */}
+        {project.status === 'active' && (
+          <div className="flex justify-end pt-4">
+            <Button
+              onClick={() => confirmDelete(project.id, project.name)}
+              variant="destructive"
+              size="sm"
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Delete Project
+            </Button>
+          </div>
+        )}
       </DialogContent>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, projectId: null, projectName: "" })}
+        onConfirm={() => {
+          if (deleteConfirm.projectId) {
+            handleDelete(deleteConfirm.projectId);
+            setDeleteConfirm({ isOpen: false, projectId: null, projectName: "" });
+          }
+        }}
+        title="Delete Project"
+        message={`Are you sure you want to delete "${deleteConfirm.projectName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </Dialog>
   );
 } 

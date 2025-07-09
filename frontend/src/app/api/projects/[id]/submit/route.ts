@@ -39,10 +39,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }, { status: 400 });
     }
 
-    // Check if user has address set
+    // Check if user has complete profile set
     const dbUser = await getUserByRecordId(user.airtableId);
     if (!dbUser) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    // Validate that personal information fields are not empty strings
+    if (!dbUser.firstName?.trim() || !dbUser.lastName?.trim() || !dbUser.birthday?.trim()) {
+      return NextResponse.json({ 
+        error: "First name, last name, and date of birth must be set in account settings before submitting a project." 
+      }, { status: 400 });
     }
 
     // Validate that address fields are not empty strings

@@ -37,16 +37,31 @@ export async function PUT(req: NextRequest) {
     }
 
     // Validate personal information
-    if (!personalInfo.email || !personalInfo.firstName || !personalInfo.lastName) {
+    if (!personalInfo.email || !personalInfo.firstName || !personalInfo.lastName || !personalInfo.birthday) {
       return NextResponse.json({ 
-        error: "Email, first name, and last name are required." 
+        error: "Email, first name, last name, and date of birth are required." 
       }, { status: 400 });
+    }
+
+    // Validate address information only if user is actually updating their address
+    if (addressInfo && (
+      addressInfo.addressLine1?.trim() || 
+      addressInfo.city?.trim() || 
+      addressInfo.state?.trim() || 
+      addressInfo.postalCode?.trim() || 
+      addressInfo.country?.trim()
+    )) {
+      if (!addressInfo.addressLine1?.trim() || !addressInfo.city?.trim() || !addressInfo.state?.trim() || !addressInfo.postalCode?.trim() || !addressInfo.country?.trim()) {
+        return NextResponse.json({ 
+          error: "Address line 1, city, state, postal code, and country are required when setting address information." 
+        }, { status: 400 });
+      }
     }
 
     // Update the user profile
     const updated = await updateUserProfile(user.airtableId, {
       personalInfo,
-      addressInfo: addressInfo || null, // Address info is optional
+      addressInfo: addressInfo || null, // Address info is required for project submission
     });
 
     if (!updated) {
