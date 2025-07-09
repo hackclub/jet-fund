@@ -30,9 +30,8 @@ export async function getEarningsData(userId: string): Promise<EarningsData> {
     let possibleUsd = 0;
     
     for (const project of projects) {
-      // Get total time for this project in seconds
-      const totalSeconds = await getTotalTimeForProject(project.id);
-      const totalHours = totalSeconds / 3600; // Convert seconds to hours
+      // Use total hours directly from the Project's hoursSpent rollup field
+      const totalHours = project.hoursSpent || 0;
       const projectValue = totalHours * HOURS_TO_USD;
       
       // Add to possible USD (all projects)

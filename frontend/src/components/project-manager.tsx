@@ -29,7 +29,6 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
     projectId: string | null;
     projectName: string;
   }>({ isOpen: false, projectId: null, projectName: "" });
-  const [projectHours, setProjectHours] = useState<Record<string, number | null>>({});
 
   async function handleCreate() {
     if (!newName.trim()) return;
@@ -103,22 +102,6 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
       }
     }
     checkOngoingSession();
-  }, [projects]);
-
-  useEffect(() => {
-    async function fetchHours() {
-      const entries = await Promise.all(projects.map(async (p) => {
-        try {
-          const res = await fetch(`/api/projects/${p.id}/total-time`);
-          const data = await res.json();
-          return [p.id, data.totalHours ?? 0];
-        } catch {
-          return [p.id, null];
-        }
-      }));
-      setProjectHours(Object.fromEntries(entries));
-    }
-    if (projects.length > 0) fetchHours();
   }, [projects]);
 
   async function handleSubmitClick(project: Project) {
@@ -205,7 +188,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
                     >
                       {p.name}
                     </span>
-                    <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {projectHours[p.id] == null ? 'Loading...' : `${projectHours[p.id]} hours`}</span>
+                    <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {p.hoursSpent == null ? '0' : `${p.hoursSpent} hours`}</span>
                     <Badge variant={p.status === 'active' ? 'default' : 'secondary'}>
                       {p.status === 'active' ? 'Active' : 'Submitted'}
                     </Badge>

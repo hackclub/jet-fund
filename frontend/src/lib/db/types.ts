@@ -31,6 +31,7 @@ export interface Project {
   codeUrl?: string;
   screenshotUrl?: string;
   description?: string;
+  readonly hoursSpent?: number; // Rollup of session hoursSpent in Airtable
 }
 
 export interface Session {
@@ -44,4 +45,5 @@ export interface Session {
   // Readonly fields for Airtable formula search
   // readonly userId: string; // Extracted from user[0] for search purposes
   // readonly projectId: string; // Extracted from project[0] for search purposes
+  readonly hoursSpent?: number; // Calculated by Airtable formula: ROUND(DATETIME_DIFF({endTime}, {startTime}, 'seconds') / 3600, 2)
 } 

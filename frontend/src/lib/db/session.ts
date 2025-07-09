@@ -12,6 +12,7 @@ function recordToSession(record: Airtable.Record<Airtable.FieldSet>): Session {
     endTime: record.get("endTime") as string,
     gitCommitUrl: record.get("gitCommitUrl") as string,
     imageUrl: record.get("imageUrl") as string,
+    hoursSpent: record.get("hoursSpent") as number | undefined,
   };
 }
 
@@ -88,26 +89,24 @@ export async function updateSession(
 }
 
 /**
- * Returns the total time (in seconds) spent on a project by summing all finished sessions for a given projectId.
+ * Returns the total time (in hours) spent on a project by summing all finished sessions for a given projectId.
+ * Uses the hoursSpent formula field from Airtable for accurate calculations.
  */
 export async function getTotalTimeForProject(projectId: string): Promise<number> {
   const records = await base(SESSIONS_TABLE).select({
     filterByFormula: `AND(projectId = '${projectId}', NOT(endTime = ''))`,
     view: AIRTABLE_VIEW,
   }).all();
-  let totalSeconds = 0;
+  
+  let totalHours = 0;
   for (const record of records) {
-    const start = record.get('startTime');
-    const end = record.get('endTime');
-    if (start && end) {
-      const startTime = new Date(start as string).getTime();
-      const endTime = new Date(end as string).getTime();
-      if (!isNaN(startTime) && !isNaN(endTime) && endTime > startTime) {
-        totalSeconds += Math.floor((endTime - startTime) / 1000);
-      }
+    const session = recordToSession(record);
+    if (session.hoursSpent) {
+      totalHours += session.hoursSpent;
     }
   }
-  return totalSeconds;
+  
+  return totalHours;
 }
 
 

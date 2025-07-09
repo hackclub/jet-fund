@@ -15,6 +15,7 @@ function recordToProject(record: AirtableRecord<FieldSet>): Project {
     codeUrl: record.get('codeUrl') as string | undefined,
     screenshotUrl: record.get('screenshotUrl') as string | undefined,
     description: record.get('description') as string | undefined,
+    hoursSpent: record.get('hoursSpent') as number | undefined,
   };
 }
 
