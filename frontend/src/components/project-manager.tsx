@@ -7,18 +7,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import ProjectSubmission from "@/components/project-submission";
 import ProjectDetailsModal from "@/components/project-details-modal";
 import type { Project } from "@/lib/db/types";
-import { CheckIcon, Eye, Pencil } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import CheckBadge from "@/components/ui/check-badge";
 
 interface ProjectManagerProps {
-  onSelect?: (id: string) => void;
   selectedProject?: string;
   projects: Project[];
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   refreshProjects: () => Promise<void>;
 }
 
-export default function ProjectManager({ onSelect, selectedProject, projects, refreshProjects }: ProjectManagerProps) {
+export default function ProjectManager({ selectedProject, projects, refreshProjects }: ProjectManagerProps) {
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -164,11 +163,15 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
                     )}
                   </button>
                 </div>
-                <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {p.hoursSpent == null ? '0' : `${p.hoursSpent} hours`}</span>
+                <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">
+                  {p.approvedHours || 0} approved, {p.pendingHours || 0} pending hours
+                </span>
                 {p.status === 'approved' ? (
                   <CheckBadge>Approved</CheckBadge>
-                ) : p.status === 'finished' ? (
+                ) : p.status === 'submitted' ? (
                   <Badge variant="secondary">Submitted</Badge>
+                ) : p.status === 'rejected' ? (
+                  <Badge variant="destructive">Rejected</Badge>
                 ) : (
                   <Badge variant="default">Active</Badge>
                 )}

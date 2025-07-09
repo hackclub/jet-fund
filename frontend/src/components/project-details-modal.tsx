@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,14 +34,7 @@ export default function ProjectDetailsModal({
     projectName: string;
   }>({ isOpen: false, projectId: null, projectName: "" });
 
-  useEffect(() => {
-    if (project && isOpen) {
-      setEditName(project.name);
-      fetchSessions();
-    }
-  }, [project, isOpen]);
-
-  async function fetchSessions() {
+  const fetchSessions = useCallback(async () => {
     if (!project) return;
     
     setSessionsLoading(true);
@@ -56,7 +49,14 @@ export default function ProjectDetailsModal({
     } finally {
       setSessionsLoading(false);
     }
-  }
+  }, [project]);
+
+  useEffect(() => {
+    if (project && isOpen) {
+      setEditName(project.name);
+      fetchSessions();
+    }
+  }, [project, isOpen, fetchSessions]);
 
   async function handleSaveEdit() {
     if (!project || !editName.trim()) return;
@@ -179,19 +179,33 @@ export default function ProjectDetailsModal({
                   <span className="font-medium">Status:</span>
                   {project.status === 'approved' ? (
                     <Badge variant="default" className="bg-green-100 text-green-800">Approved</Badge>
-                  ) : project.status === 'finished' ? (
+                  ) : project.status === 'submitted' ? (
                     <Badge variant="secondary">Submitted</Badge>
+                  ) : project.status === 'rejected' ? (
+                    <Badge variant="destructive">Rejected</Badge>
                   ) : (
                     <Badge variant="outline">Active</Badge>
                   )}
                 </div>
                 
+                {project.rejectionReason && (
+                  <div className="flex items-start gap-2">
+                    <span className="font-medium">Rejection Reason:</span>
+                    <p className="text-sm text-muted-foreground">{project.rejectionReason}</p>
+                  </div>
+                )}
+                
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  <span>Total Time: {formatDuration(project.hoursSpent)}</span>
+                  <span>Total Time: {formatDuration((project.approvedHours || 0) + (project.pendingHours || 0))}</span>
                 </div>
 
-                {project.status === 'finished' && (
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span>Approved: {formatDuration(project.approvedHours || 0)}</span>
+                  <span>Pending: {formatDuration(project.pendingHours || 0)}</span>
+                </div>
+
+                {project.status === 'submitted' && (
                   <>
                     <Separator />
                     <div className="space-y-3">
@@ -235,6 +249,7 @@ export default function ProjectDetailsModal({
                         
                         {project.screenshotUrl && (
                           <div className="flex items-center gap-2">
+                            {/* eslint-disable-next-line jsx-a11y/alt-text */}
                             <Image className="h-4 w-4" />
                             <a 
                               href={project.screenshotUrl} 
@@ -267,7 +282,12 @@ export default function ProjectDetailsModal({
                 ) : (
                   <div className="space-y-3">
                     {sessions.map((session) => (
-                      <Card key={session.id} className="border-l-4 border-l-blue-500">
+                      <Card key={session.id} className={`border-l-4 ${
+                        session.status === 'approved' ? 'border-l-green-500' :
+                        session.status === 'rejected' ? 'border-l-red-500' :
+                        session.status === 'finished' ? 'border-l-yellow-500' :
+                        'border-l-blue-500'
+                      }`}>
                         <CardContent className="pt-4">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                             <div className="flex-1">
@@ -282,12 +302,34 @@ export default function ProjectDetailsModal({
                                 )}
                               </div>
                               
+                              <div className="flex items-center gap-2 mt-1">
                               {session.hoursSpent && (
-                                <div className="flex items-center gap-2 mt-1">
+                                  <div className="flex items-center gap-2">
                                   <Clock className="h-3 w-3" />
                                   <span className="text-sm font-medium">
                                     {formatDuration(session.hoursSpent)}
                                   </span>
+                                  </div>
+                                )}
+                                
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-medium">Status:</span>
+                                  {session.status === 'approved' ? (
+                                    <Badge variant="default" className="bg-green-100 text-green-800 text-xs">Approved</Badge>
+                                  ) : session.status === 'finished' ? (
+                                    <Badge variant="secondary" className="text-xs">Finished</Badge>
+                                  ) : session.status === 'rejected' ? (
+                                    <Badge variant="destructive" className="text-xs">Rejected</Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-xs">Ongoing</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {session.rejectionReason && (
+                                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs">
+                                  <span className="font-medium text-red-800">Rejection Reason:</span>
+                                  <p className="text-red-700 mt-1">{session.rejectionReason}</p>
                                 </div>
                               )}
                             </div>
@@ -312,6 +354,7 @@ export default function ProjectDetailsModal({
                                   rel="noopener noreferrer"
                                   className="text-blue-600 hover:underline text-xs flex items-center gap-1"
                                 >
+                                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
                                   <Image className="h-3 w-3" />
                                   Screenshot
                                 </a>

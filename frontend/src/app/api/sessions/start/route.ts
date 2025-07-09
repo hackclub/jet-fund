@@ -34,7 +34,20 @@ export async function POST(req: NextRequest) {
     // Check for unfinished session
     const unfinished = await getUnfinishedSessionForUser(user.airtableId);
     if (unfinished) {
-      return NextResponse.json({ error: "You already have an unfinished session.", unfinishedSession: unfinished }, { status: 400 });
+        // If the previous session is finished but missing commit URL or image, block new session
+      if (
+        unfinished.status === "finished" && 
+        (!unfinished.gitCommitUrl || !unfinished.imageUrl)
+      ) {
+        return NextResponse.json({ 
+          error: "You must submit a commit URL and screenshot for your last session before starting a new one.", 
+          unfinishedSession: unfinished 
+        }, { status: 400 });
+      }
+      // If the previous session is ongoing, block new session
+      if (unfinished.status === "ongoing") {
+        return NextResponse.json({ error: "You already have an ongoing session.", unfinishedSession: unfinished }, { status: 400 });
+      }
     }
     const now = new Date().toISOString();
     const sessionData = {

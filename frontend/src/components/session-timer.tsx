@@ -35,6 +35,13 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         setSessionId(data.session.id);
         // Use the session data from the API response
         const session = data.session;
+        
+        // If session is finished but not submitted, show form
+        if (session.endTime && (!session.gitCommitUrl || !session.imageUrl)) {
+          setShowForm(true);
+          setSelectedProject(session.project[0]);
+        } else if (!session.endTime) {
+          // Session is still active
         const started = new Date(session.startTime);
         setTimerActive(true);
         setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
@@ -42,6 +49,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           setElapsed(Math.floor((Date.now() - started.getTime()) / 1000));
         }, 1000);
         setSelectedProject(session.project[0]);
+        }
       }
     }
     checkUnfinished();
@@ -82,6 +90,15 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         if (data.error && data.error.includes("submitted project")) {
           setSelectedProject("");
         }
+        // If there's an unfinished session that needs completion, show it
+        if (data.unfinishedSession) {
+          setSessionId(data.unfinishedSession.id);
+                  // If the session is finished but missing details, show form
+        if (data.unfinishedSession.endTime && (!data.unfinishedSession.gitCommitUrl || !data.unfinishedSession.imageUrl)) {
+          setShowForm(true);
+          setSelectedProject(data.unfinishedSession.project[0]);
+        }
+        }
       }
     } catch {
       setStatusMessage("Network error.");
@@ -90,10 +107,31 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     }
   }
 
-  function stopTimer() {
+  async function stopTimer() {
+    if (!sessionId) return;
+    
+    setLoading(true);
+    setStatusMessage(null);
+    
+    try {
+      const res = await fetch("/api/sessions/finish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setTimerActive(false);
     setShowForm(true);
+      } else {
+        setStatusMessage(data.error || "Failed to finish session.");
+      }
+    } catch {
+      setStatusMessage("Network error.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Helper: Upload file to Bucky and then to Hack Club CDN
@@ -135,14 +173,14 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       imageUrl,
     };
     try {
-      const res = await fetch("/api/sessions/finish", {
+      const res = await fetch("/api/sessions/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setStatusMessage("Session logged!");
+        setStatusMessage("Session submitted!");
         setShowForm(false);
         setGitCommitUrl("");
         setImage(null);
@@ -155,7 +193,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         // Refresh projects to get updated data
         await refreshProjects();
       } else {
-        setStatusMessage(data.error || "Failed to log session.");
+        setStatusMessage(data.error || "Failed to submit session.");
       }
     } catch {
       setStatusMessage("Network error.");
@@ -183,7 +221,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                 <SelectContent>
                   {projects.map(p => (
                     <SelectItem key={p.id} value={p.id} disabled={p.status !== 'active'}>
-                      {p.name} {p.status !== 'active' ? `(${p.status === 'finished' ? 'Submitted' : 'Approved'})` : ''}
+                      {p.name} {p.status !== 'active' ? `(${p.status === 'submitted' ? 'Submitted' : 'Approved'})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -192,7 +230,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
               {selectedProject && projects.find(p => p.id === selectedProject)?.status !== 'active' && (
                 <Alert>
                   <AlertDescription>
-                    <strong>Project {projects.find(p => p.id === selectedProject)?.status === 'finished' ? 'Submitted' : 'Approved'}:</strong> This project cannot accept new sessions.
+                    <strong>Project {projects.find(p => p.id === selectedProject)?.status === 'submitted' ? 'Submitted' : 'Approved'}:</strong> This project cannot accept new sessions.
                   </AlertDescription>
                 </Alert>
               )}
@@ -214,7 +252,9 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           <CardContent className="pt-6">
             <div className="flex flex-col gap-4 items-center">
               <div className="text-2xl font-mono">{prettyMs(elapsed * 1000, { verbose: true })}</div>
-              <Button onClick={stopTimer} variant="secondary" className="w-full">Finish Session</Button>
+              <Button onClick={stopTimer} variant="secondary" className="w-full" disabled={loading}>
+                {loading ? "Finishing..." : "Finish Session"}
+              </Button>
               <div className="text-sm text-muted-foreground text-center">
                 Working on <strong>{projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'}</strong>
               </div>
@@ -226,6 +266,14 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       {showForm && (
         <Card>
           <CardContent className="pt-6">
+            <div className="mb-4">
+              <Alert>
+                <AlertDescription>
+                  <strong>Session Finished:</strong> Please provide the commit URL and screenshot to complete your session submission for{" "}
+                  <strong>{projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'}</strong>
+                </AlertDescription>
+              </Alert>
+            </div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <Input
                 type="url"
@@ -241,7 +289,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                 required
               />
               <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Logging..." : "Submit Session"}
+                {loading ? "Submitting..." : "Submit Session Details"}
               </Button>
               {statusMessage && (
                 <p className="text-sm text-muted-foreground text-center">{statusMessage}</p>
@@ -253,7 +301,23 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       
       {!timerActive && !showForm && statusMessage && (
         <Alert>
-          <AlertDescription>{statusMessage}</AlertDescription>
+          <AlertDescription>
+            {typeof statusMessage === "string" ? statusMessage : ""}
+            {typeof statusMessage === "string" && statusMessage.includes("needs commit URL and screenshot") && (
+              <div className="mt-2">
+                <Button 
+                  onClick={() => {
+                    // This will be handled by the startTimer function when it detects the unfinished session
+                    startTimer();
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  Complete Session
+                </Button>
+              </div>
+            )}
+          </AlertDescription>
         </Alert>
       )}
     </div>

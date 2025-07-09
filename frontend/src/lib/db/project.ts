@@ -4,18 +4,21 @@ import type { Project } from "@/lib/db/types";
 
 // Helper to convert Airtable record to Project
 function recordToProject(record: AirtableRecord<FieldSet>): Project {
+  const status = record.get('status') as string;
   return {
     id: record.id,
     name: record.get('name') as string,
     user: record.get('user') as string[] || [],
-    status: record.get('status') as "active" | "finished" | "approved" || "active",
+    status: (status === "submitted" || status === "approved" || status === "rejected") ? status : "active",
     sessions: record.get('sessions') as string[] || [],
-    // Submission fields (only present when status is "finished")
+    // Submission fields (only present when status is "submitted")
     playableUrl: record.get('playableUrl') as string | undefined,
     codeUrl: record.get('codeUrl') as string | undefined,
     screenshotUrl: record.get('screenshotUrl') as string | undefined,
     description: record.get('description') as string | undefined,
-    hoursSpent: record.get('hoursSpent') as number | undefined,
+    pendingHours: record.get('pendingHours') as number | undefined,
+    approvedHours: record.get('approvedHours') as number | undefined,
+    rejectionReason: record.get('rejectionReason') as string | undefined,
   };
 }
 
@@ -73,7 +76,7 @@ export async function updateProject(
   id: string,
   data: {
     name?: string;
-    status?: "active" | "finished" | "approved";
+    status?: "active" | "submitted" | "approved" | "rejected";
     playableUrl?: string;
     codeUrl?: string;
     screenshotUrl?: string;

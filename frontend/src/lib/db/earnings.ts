@@ -1,5 +1,4 @@
 import { getProjectsByUserId } from "./project";
-import { getTotalTimeForProject } from "./session";
 import { getUserByRecordId } from "./user";
 
 const HOURS_TO_USD = 5; // Constant for converting hours to USD
@@ -30,17 +29,13 @@ export async function getEarningsData(userId: string): Promise<EarningsData> {
     let pendingUsd = 0;
     
     for (const project of projects) {
-      // Use total hours directly from the Project's hoursSpent rollup field
-      const totalHours = project.hoursSpent || 0;
-      const projectValue = totalHours * HOURS_TO_USD;
-      
-      // Add to approved USD (only approved projects)
+      const pendingHours = project.pendingHours || 0;
+      const approvedHours = project.approvedHours || 0;
       if (project.status === "approved") {
-        approvedUsd += projectValue;
-      }
-      // Add to pending USD (only submitted/finished projects awaiting approval)
-      else if (project.status === "finished") {
-        pendingUsd += projectValue;
+        approvedUsd += approvedHours * HOURS_TO_USD;
+        pendingUsd += pendingHours * HOURS_TO_USD;
+      } else {
+        pendingUsd += (pendingHours + approvedHours) * HOURS_TO_USD;
       }
     }
     

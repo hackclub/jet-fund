@@ -11,8 +11,8 @@ export const config = {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    if (!body.sessionId || !body.gitCommitUrl || !body.imageUrl) {
-      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    if (!body.sessionId) {
+      return NextResponse.json({ error: "Missing sessionId." }, { status: 400 });
     }
     const user = await getUser();
     if (!user || !user.airtableId) {
@@ -27,6 +27,11 @@ export async function POST(req: NextRequest) {
     
     if (!session.user.includes(user.airtableId)) {
       return NextResponse.json({ error: "Not authorized to finish this session." }, { status: 403 });
+    }
+    
+    // Only allow finishing if session is ongoing
+    if (session.status !== "ongoing") {
+      return NextResponse.json({ error: "Session is not ongoing." }, { status: 400 });
     }
     
     const now = new Date().toISOString();
@@ -52,16 +57,15 @@ export async function POST(req: NextRequest) {
     }
     
     // Prevent sessions shorter than 1 minute (likely accidental)
-    if (durationHours < 1/60) {
-      return NextResponse.json({ 
-        error: "Session duration is too short. Minimum session time is 1 minute." 
-      }, { status: 400 });
-    }
+    // if (durationHours < 1/60) {
+    //   return NextResponse.json({ 
+    //     error: "Session duration is too short. Minimum session time is 1 minute." 
+    //   }, { status: 400 });
+    // }
     
     const updated = await updateSession(body.sessionId, {
       endTime: now,
-      gitCommitUrl: body.gitCommitUrl,
-      imageUrl: body.imageUrl,
+      status: "finished",
     });
     return NextResponse.json({ success: true, session: updated });
   } catch {

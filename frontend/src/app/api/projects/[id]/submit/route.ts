@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { getProjectByRecordId, updateProject } from "@/lib/db/project";
 import { getUserByRecordId } from "@/lib/db/user";
-import { getUnfinishedSessionForUser } from "@/lib/db/session";
+import { getUnfinishedSessionForUser, updateSessionStatusesForProject } from "@/lib/db/session";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Not authorized." }, { status: 403 });
     }
 
-    if (existingProject.status === "finished") {
+    if (existingProject.status === "submitted") {
       return NextResponse.json({ error: "Project is already submitted." }, { status: 400 });
     }
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Update project with submission data
     const updatedProject = await updateProject(id, {
-      status: "finished",
+      status: "submitted",
       playableUrl: body.playableUrl,
       codeUrl: body.codeUrl,
       screenshotUrl: body.screenshotUrl,
@@ -71,6 +71,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!updatedProject) {
       return NextResponse.json({ error: "Failed to submit project." }, { status: 500 });
     }
+
+    // Update all sessions for this project to "submitted" status
+    await updateSessionStatusesForProject(id, "submitted");
 
     return NextResponse.json({ success: true, project: updatedProject });
   } catch (err) {

@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Not authorized." }, { status: 403 });
   }
   
-  // Prevent editing of submitted/finished projects
+  // Prevent editing of submitted/approved projects
   if (project.status !== "active") {
     return NextResponse.json({ error: "Cannot edit a submitted project." }, { status: 400 });
   }

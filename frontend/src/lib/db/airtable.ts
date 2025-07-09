@@ -41,6 +41,9 @@ export async function createSession(session: Omit<Session, "id">): Promise<Sessi
     endTime: record.get("endTime") as string,
     gitCommitUrl: record.get("gitCommitUrl") as string,
     imageUrl: record.get("imageUrl") as string,
+    status: (["finished", "approved", "rejected"].includes(record.get("status") as string)
+      ? (record.get("status") as string)
+      : "ongoing") as "ongoing" | "finished" | "approved" | "rejected",
   };
 }
 
@@ -66,6 +69,9 @@ export async function updateSession(sessionId: string, fields: Partial<Pick<Sess
     endTime: record.get("endTime") as string,
     gitCommitUrl: record.get("gitCommitUrl") as string,
     imageUrl: record.get("imageUrl") as string,
+    status: (["finished", "approved", "rejected"].includes(record.get("status") as string)
+      ? (record.get("status") as string)
+      : "ongoing") as "ongoing" | "finished" | "approved" | "rejected",
   };
 }
 
@@ -107,6 +113,9 @@ export async function getSessionById(sessionId: string): Promise<Session | null>
       endTime: record.get("endTime") as string,
       gitCommitUrl: record.get("gitCommitUrl") as string,
       imageUrl: record.get("imageUrl") as string,
+      status: (["finished", "approved", "rejected"].includes(record.get("status") as string)
+        ? (record.get("status") as string)
+        : "ongoing") as "ongoing" | "finished" | "approved" | "rejected",
     };
   } catch {
     return null;

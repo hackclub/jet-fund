@@ -95,7 +95,10 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                             addressInfo.postalCode?.trim() || 
                             addressInfo.country?.trim();
 
-      const requestBody: any = {
+      const requestBody: {
+        personalInfo: PersonalInfo;
+        addressInfo?: AddressInfo;
+      } = {
         personalInfo,
       };
 
@@ -332,7 +335,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             <CardHeader>
               <CardTitle className="text-destructive">Sign Out Everywhere</CardTitle>
               <CardDescription>
-                This will sign you out on all devices where you're currently logged in. You'll need to sign in again on each device.
+                This will sign you out on all devices where you&apos;re currently logged in. You&apos;ll need to sign in again on each device.
               </CardDescription>
             </CardHeader>
             <CardContent>

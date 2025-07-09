@@ -82,7 +82,6 @@ function HomeContent() {
           </CardHeader>
           <CardContent>
             <ProjectManager
-              onSelect={setSelectedProject}
               selectedProject={selectedProject}
               projects={projects}
               setProjects={setProjects}

@@ -4,6 +4,7 @@ import { SESSIONS_TABLE, base, AIRTABLE_VIEW } from "./airtable";
 
 // Helper to convert Airtable record to Session
 function recordToSession(record: Airtable.Record<Airtable.FieldSet>): Session {
+  const status = record.get("status") as string;
   return {
     id: record.id,
     user: record.get("user") as string[],
@@ -12,7 +13,9 @@ function recordToSession(record: Airtable.Record<Airtable.FieldSet>): Session {
     endTime: record.get("endTime") as string,
     gitCommitUrl: record.get("gitCommitUrl") as string,
     imageUrl: record.get("imageUrl") as string,
+    status: (status === "finished" || status === "approved" || status === "rejected") ? status : "ongoing",
     hoursSpent: record.get("hoursSpent") as number | undefined,
+    rejectionReason: record.get("rejectionReason") as string | undefined,
   };
 }
 
@@ -28,7 +31,19 @@ export async function getSessionByRecordId(id: string): Promise<Session | null> 
 // Get unfinished session for a user
 export async function getUnfinishedSessionForUser(userId: string): Promise<Session | null> {
   const records = await base(SESSIONS_TABLE).select({
-    filterByFormula: `AND(userId = '${userId}', endTime = '')`,
+    filterByFormula: `AND(
+      userId = '${userId}',
+      OR(
+        status = 'ongoing',
+        AND(
+          status = 'finished',
+          OR(
+            gitCommitUrl = '',
+            imageUrl = ''
+          )
+        )
+      )
+    )`,
     view: AIRTABLE_VIEW,
   }).all();
   if (records.length === 0) {
@@ -66,6 +81,7 @@ export async function createSession(data: {
           endTime: data.endTime || "",
           gitCommitUrl: data.gitCommitUrl || "",
           imageUrl: data.imageUrl || "",
+          status: "ongoing",
         },
       },
     ]);
@@ -83,6 +99,7 @@ export async function updateSession(
     endTime?: string;
     gitCommitUrl?: string;
     imageUrl?: string;
+    status?: string;
   }
 ): Promise<Session | null> {
   try {
@@ -90,6 +107,7 @@ export async function updateSession(
       endTime: data.endTime || "",
       gitCommitUrl: data.gitCommitUrl || "",
       imageUrl: data.imageUrl || "",
+      status: data.status || undefined,
     });
     return recordToSession(record);
   } catch (err) {
@@ -98,8 +116,29 @@ export async function updateSession(
   }
 }
 
+// Update session status for all sessions in a project
+export async function updateSessionStatusesForProject(
+  projectId: string,
+  status: string
+): Promise<void> {
+  try {
+    const sessions = await getSessionsByProjectId(projectId);
+    const updates = sessions.map(session => ({
+      id: session.id,
+      fields: { status }
+    }));
+    
+    if (updates.length > 0) {
+      await base(SESSIONS_TABLE).update(updates);
+    }
+  } catch (err) {
+    console.error("Error updating session statuses for project:", err);
+  }
+}
+
 /**
- * Returns the total time (in hours) spent on a project by summing all finished sessions for a given projectId.
+ * Returns the total time (in hours) spent on a project by summing all sessions with an endTime for a given projectId.
+ * This includes all sessions regardless of their approval status.
  * Uses the hoursSpent formula field from Airtable for accurate calculations.
  */
 export async function getTotalTimeForProject(projectId: string): Promise<number> {
