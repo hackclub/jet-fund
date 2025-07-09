@@ -154,12 +154,9 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                       <Eye className="w-3.5 h-3.5" />
                     </div>
                     {p.status === 'active' && (
-                      <>
-                        <div className="w-px h-4 bg-muted"></div>
-                        <div className="p-1.5">
-                          <Pencil className="w-3.5 h-3.5" />
-                        </div>
-                      </>
+                      <div className="p-1.5">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </div>
                     )}
                   </button>
                 </div>

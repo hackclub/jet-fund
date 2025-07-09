@@ -42,22 +42,25 @@ export function EarningsHeaderSummary() {
     ? (earningsData.approvedUsd / totalEarnings) * 100 
     : 0;
   return (
-    <div className="flex items-center gap-3 w-full max-w-2xl">
-      <span className="flex items-center gap-2 text-xs bg-muted px-2 py-1 rounded">
-        <PiggyBank className="h-4 w-4 text-green-600" />
-        <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
-        <span className="text-muted-foreground">|</span>
-        <span>Pending: ${earningsData.pendingUsd.toFixed(2)}</span>
-      </span>
-      <div className="flex items-center gap-1 min-w-[100px] max-w-[160px]">
-        <Progress value={progressPercentage} className="h-2 w-24" variant="sparkly-gold" />
-        <span className="text-[10px] text-gray-500 w-10 text-center">{progressPercentage.toFixed(1)}%</span>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full max-w-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 w-full">
+        <span className="flex items-center gap-2 text-xs bg-muted px-2 py-1 rounded">
+          <PiggyBank className="h-4 w-4 text-green-600" />
+          <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
+          <span className="text-muted-foreground">|</span>
+          <span>Pending: ${earningsData.pendingUsd.toFixed(2)}</span>
+        </span>
+        <div className="flex items-center gap-1 w-full sm:min-w-[100px] sm:max-w-[160px]">
+          <Progress value={progressPercentage} className="h-2 w-full sm:w-24" variant="sparkly-gold" />
+          <span className="text-[10px] text-gray-500 w-10 text-center">{progressPercentage.toFixed(1)}%</span>
+        </div>
       </div>
       <a
         href="https://example.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
+        className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap w-full sm:w-auto text-center"
+        style={{ maxWidth: '100%' }}
       >
         Request Reimbursement
       </a>
