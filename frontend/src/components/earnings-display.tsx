@@ -35,10 +35,10 @@ export default function EarningsDisplay() {
   if (loading) {
     return (
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4">
           <div className="flex items-center gap-2">
-            <PiggyBank className="h-5 w-5 text-green-600" />
-            <span className="text-sm text-gray-500">Loading earnings...</span>
+            <PiggyBank className="h-4 w-4 text-green-600" />
+            <span className="text-xs text-gray-500">Loading earnings...</span>
           </div>
         </CardContent>
       </Card>
@@ -56,24 +56,24 @@ export default function EarningsDisplay() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <PiggyBank className="h-5 w-5 text-green-600" />
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <PiggyBank className="h-4 w-4 text-green-600" />
           Available stipends
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-between text-sm">
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          <div className="flex justify-between text-xs">
             <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
-            <span>Pending approval: ${earningsData.pendingUsd.toFixed(2)}</span>
+            <span>Pending: ${earningsData.pendingUsd.toFixed(2)}</span>
           </div>
           <Progress value={progressPercentage} className="w-full" variant="sparkly-gold" />
           <div className="text-xs text-gray-500 text-center">
-            {progressPercentage.toFixed(1)}% of total earnings approved
+            {progressPercentage.toFixed(1)}% approved
           </div>
-          <div className="flex justify-center pt-2">
-            <Button asChild variant="default">
+          <div className="flex justify-center">
+            <Button asChild variant="default" size="sm">
               <a href="https://example.com" target="_blank" rel="noopener noreferrer">
                 Request Reimbursement
               </a>

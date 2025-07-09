@@ -46,20 +46,20 @@ export function HackathonCarousel() {
   }, []);
 
   return (
-    <section className="my-10">
+    <section className="my-6">
       <h2 className="text-xl font-bold mb-2 text-center">
-        Jet Fund allows you to go to any community-ran hackathon on{' '}
-        <a href="https://hackathons.hackclub.com/" target="_blank" rel="noopener noreferrer" className="underline text-primary">hackathons.hackclub.com</a>
+        Jet Fund allows you to fly to any community-ran hackathon on{' '}
+        <a href="https://hackathons.hackclub.com/" target="_blank" rel="noopener noreferrer" className="underline text-primary">hackathons.hackclub.com</a>, even internationally.
       </h2>
       {loading ? (
-        <div className="text-center py-8">Loading hackathons...</div>
+        <div className="text-center py-4">Loading hackathons...</div>
       ) : error ? (
-        <div className="text-center text-destructive py-8">{error}</div>
+        <div className="text-center text-destructive py-4">{error}</div>
       ) : hackathons.length === 0 ? (
-        <div className="text-center py-8">No in-person hackathons found.</div>
+        <div className="text-center py-4">No in-person hackathons found.</div>
       ) : (
         <div className="overflow-x-auto pb-2">
-          <div className="flex gap-6 min-w-[320px]" style={{scrollSnapType: 'x mandatory'}}>
+          <div className="flex gap-4 min-w-[320px]" style={{scrollSnapType: 'x mandatory'}}>
             {hackathons.map(h => (
               <HackathonCard key={h.id} hackathon={h} />
             ))}
@@ -71,7 +71,7 @@ export function HackathonCarousel() {
 }
 
 // Helper to proxy images through images.weserv.nl for faster loading
-function weservUrl(url: string, width = 400, height = 160) {
+function weservUrl(url: string, width = 300, height = 80) {
   // Remove protocol for weserv
   const cleanUrl = url.replace(/^https?:\/\//, '');
   return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}&w=${width}&h=${height}&fit=cover`;
@@ -92,18 +92,18 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
   let imgSrc = !weservError ? weservImg : (!directError ? rawImg : undefined);
 
   return (
-    <Card className="w-80 flex-shrink-0 scroll-snap-align-start">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold truncate">{hackathon.name}</CardTitle>
+    <Card className="w-64 flex-shrink-0 scroll-snap-align-start">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold truncate">{hackathon.name}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <a href={hackathon.website} target="_blank" rel="noopener noreferrer" className="block w-full h-32 mb-2 relative">
+      <CardContent className="pt-0">
+        <a href={hackathon.website} target="_blank" rel="noopener noreferrer" className="block w-full h-20 mb-2 relative">
           {/* Skeleton loader or placeholder */}
           {!imgLoaded && !directError && (
             <div className="absolute inset-0 w-full h-full bg-muted animate-pulse rounded flex items-center justify-center">
               {/* If both images fail, show a placeholder icon */}
               {weservError && directError && (
-                <span className="text-muted-foreground text-2xl">🏁</span>
+                <span className="text-muted-foreground text-lg">🏁</span>
               )}
             </div>
           )}
@@ -112,7 +112,7 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
               src={imgSrc}
               alt={hackathon.name}
               className={cn(
-                "w-full h-32 object-cover rounded transition-opacity",
+                "w-full h-20 object-cover rounded transition-opacity",
                 imgLoaded ? "opacity-100" : "opacity-0"
               )}
               loading="lazy"
@@ -125,7 +125,7 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
             />
           )}
         </a>
-        <div className="text-sm mb-2">
+        <div className="text-xs mb-2">
           <span className="block font-medium">
             {hackathon.city && hackathon.country
               ? `${hackathon.city}${hackathon.state ? ', ' + hackathon.state : ''}, ${hackathon.country}`
@@ -135,7 +135,7 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
             {formatDateRange(hackathon.start, hackathon.end)}
           </span>
         </div>
-        <Button asChild variant="outline" className="w-full mt-2">
+        <Button asChild variant="outline" size="sm" className="w-full">
           <a href={hackathon.website} target="_blank" rel="noopener noreferrer">
             Learn More
           </a>

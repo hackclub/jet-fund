@@ -78,30 +78,35 @@ function HomeContent() {
 
   // Show full content when authenticated
   return (
-    <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3">
-          <Badge variant="secondary" className="text-sm">
-            <User className="w-3 h-3 mr-1" />
-            {session.user.name}
-          </Badge>
+    <div className="space-y-6">
+      {/* Top Row: Welcome left, Stipend right, same height */}
+      <div className="flex flex-col md:flex-row gap-4 items-stretch w-full">
+        {/* Welcome Text (left, only if logged in) */}
+        {session?.user && (
+          <div className="flex flex-col justify-center items-center md:items-start flex-1 bg-background/80 rounded-lg p-4 md:p-6 min-h-full">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary" className="text-sm">
+                <User className="w-3 h-3 mr-1" />
+                {session.user.name}
+              </Badge>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-1">
+              Ready to take flight?
+            </h2>
+            <p className="text-muted-foreground text-sm md:text-base max-w-md">
+              Track your hackathon projects and earn flight stipends. Every session brings you closer to your next adventure.
+            </p>
+          </div>
+        )}
+        {/* Stipend/Earnings Card (right) */}
+        <div className="flex-1 flex items-stretch">
+          <div className="w-full flex flex-col justify-center h-full">
+            <EarningsDisplay />
+          </div>
         </div>
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-          Ready to take flight?
-        </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Track your hackathon projects and earn flight stipends. Every session brings you closer to your next adventure.
-        </p>
       </div>
 
-      {/* Earnings Display */}
-      <EarningsDisplay />
-
-      {/* Hackathon Carousel (in-person events) */}
-      <HackathonCarousel />
-
-      {/* Main Grid */}
+      {/* Main Grid - Session Timer and Projects */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Session Timer Card */}
         <Card className="md:col-span-2 lg:col-span-1">
@@ -139,6 +144,9 @@ function HomeContent() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Hackathon Carousel - Moved to bottom */}
+      <HackathonCarousel />
 
       {/* Account Settings Button (opens modal) */}
       <AccountSettingsButton onClick={() => setShowAccountSettings(true)} />
