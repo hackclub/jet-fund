@@ -7,8 +7,12 @@ import AccountSettings from "@/components/account-settings";
 import EarningsDisplay from "@/components/earnings-display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Plane, Clock, Target, Settings, User } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import type { Project } from "@/lib/db/types";
+import { AccountSettingsButton } from "@/components/account-settings-button";
 
 function HomeContent() {
   const { data: session, status } = useSession();
@@ -31,10 +35,15 @@ function HomeContent() {
   // Show loading state while checking authentication
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center py-12 px-2">
-        <div className="text-center">
-          <div className="text-lg font-medium">Loading...</div>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              <span className="text-lg font-medium">Loading...</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -42,29 +51,61 @@ function HomeContent() {
   // Show only sign-in when not authenticated
   if (!session?.user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 flex flex-col items-center justify-center py-12 px-2">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col gap-4 items-center">
-                <SignIn />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <Plane size={48} className="text-primary" />
+                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+            <CardTitle className="text-2xl bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              Welcome to Jet Fund
+            </CardTitle>
+            <p className="text-muted-foreground">
+              Earn flight stipends for travelling to hackathons
+            </p>
+          </CardHeader>
+          <CardContent>
+            <SignIn />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   // Show full content when authenticated
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 flex flex-col items-center py-12 px-2">
-      <main className="w-full max-w-2xl flex flex-col gap-8">
-        <EarningsDisplay />
-        
-        <Card>
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-3">
+          <Badge variant="secondary" className="text-sm">
+            <User className="w-3 h-3 mr-1" />
+            {session.user.name}
+          </Badge>
+        </div>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+          Ready to take flight?
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Track your hackathon projects and earn flight stipends. Every session brings you closer to your next adventure.
+        </p>
+      </div>
+
+      {/* Earnings Display */}
+      <EarningsDisplay />
+
+      {/* Main Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Session Timer Card */}
+        <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader>
-            <CardTitle>Log a Session</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-primary" />
+              Log a Session
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <SessionTimer
@@ -75,10 +116,14 @@ function HomeContent() {
             />
           </CardContent>
         </Card>
-        
-        <Card>
+
+        {/* Projects Card */}
+        <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Your Projects</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              Your Projects
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ProjectManager
@@ -89,25 +134,10 @@ function HomeContent() {
             />
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col gap-4 items-center">
-              <div className="text-sm text-muted-foreground">
-                Signed in as {session.user.name}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowAccountSettings(true)}
-                  className="text-sm text-blue-600 hover:text-blue-800 underline"
-                >
-                  Account Settings
-                </button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+      </div>
+
+      {/* Account Settings Button (opens modal) */}
+      <AccountSettingsButton onClick={() => setShowAccountSettings(true)} />
 
       {/* Account Settings Modal */}
       <Dialog open={showAccountSettings} onOpenChange={setShowAccountSettings}>

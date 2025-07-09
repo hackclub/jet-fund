@@ -349,6 +349,14 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
               </Button>
             </CardContent>
           </Card>
+          {/* Regular Sign Out Button */}
+          <Button
+            variant="outline"
+            onClick={() => signOut()}
+            className="w-full mt-2"
+          >
+            Sign Out
+          </Button>
         </form>
       )}
     </div>

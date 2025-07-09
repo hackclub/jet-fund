@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from 'next/font/local'
-import { Plane } from "lucide-react";
-import Link from 'next/link';
+import { ThemeProvider } from "@/components/theme-provider";
+import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
   title: "Jet Fund",
@@ -19,20 +19,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
       </head>
-      <body
-          className={`${phantomSans.className} antialiased`}
+      <body className={`${phantomSans.className} antialiased min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
-          <div className="flex items-center pt-8 px-6">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <Plane size={32} className="mr-3" />
-              <h1 className="text-2xl font-bold m-0">Jet Fund</h1>
-            </Link>
+          {/* Header (logo, theme toggle, etc.) */}
+          <Header />
+
+          {/* Main Content */}
+          <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
+
+          {/* Decorative Background Elements */}
+          <div className="fixed inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-600/20 rounded-full blur-3xl"></div>
           </div>
-          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

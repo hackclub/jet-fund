@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { PiggyBank } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 interface EarningsData {
   approvedUsd: number;
@@ -70,6 +71,13 @@ export default function EarningsDisplay() {
           <Progress value={progressPercentage} className="w-full" variant="sparkly-gold" />
           <div className="text-xs text-gray-500 text-center">
             {progressPercentage.toFixed(1)}% of total earnings approved
+          </div>
+          <div className="flex justify-center pt-2">
+            <Button asChild variant="default">
+              <a href="https://example.com" target="_blank" rel="noopener noreferrer">
+                Request Reimbursement
+              </a>
+            </Button>
           </div>
         </div>
       </CardContent>
