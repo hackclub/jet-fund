@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 
 interface EarningsData {
   approvedUsd: number;
-  possibleUsd: number;
+  pendingUsd: number;
 }
 
 export default function EarningsDisplay() {
@@ -48,8 +48,9 @@ export default function EarningsDisplay() {
     return null;
   }
 
-  const progressPercentage = earningsData.possibleUsd > 0 
-    ? (earningsData.approvedUsd / earningsData.possibleUsd) * 100 
+  const totalEarnings = earningsData.approvedUsd + earningsData.pendingUsd;
+  const progressPercentage = totalEarnings > 0 
+    ? (earningsData.approvedUsd / totalEarnings) * 100 
     : 0;
 
   return (
@@ -64,11 +65,11 @@ export default function EarningsDisplay() {
         <div className="space-y-4">
           <div className="flex justify-between text-sm">
             <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
-            <span>Potential: ${earningsData.possibleUsd.toFixed(2)}</span>
+            <span>Pending approval: ${earningsData.pendingUsd.toFixed(2)}</span>
           </div>
           <Progress value={progressPercentage} className="w-full" variant="sparkly-gold" />
           <div className="text-xs text-gray-500 text-center">
-            {progressPercentage.toFixed(1)}% of potential earnings approved
+            {progressPercentage.toFixed(1)}% of total earnings approved
           </div>
         </div>
       </CardContent>
