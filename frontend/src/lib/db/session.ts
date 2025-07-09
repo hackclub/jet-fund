@@ -37,6 +37,16 @@ export async function getUnfinishedSessionForUser(userId: string): Promise<Sessi
   return recordToSession(records[0]);
 }
 
+// Get all sessions for a project
+export async function getSessionsByProjectId(projectId: string): Promise<Session[]> {
+  const records = await base(SESSIONS_TABLE).select({
+    filterByFormula: `projectId = '${projectId}'`,
+    view: AIRTABLE_VIEW,
+    sort: [{ field: 'startTime', direction: 'desc' }],
+  }).all();
+  return records.map(recordToSession);
+}
+
 // Create a new session
 export async function createSession(data: {
   user: string[];

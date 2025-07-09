@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import ProjectSubmission from "@/components/project-submission";
+import ProjectDetailsModal from "@/components/project-details-modal";
 import type { Project } from "@/lib/db/types";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, Eye, Pencil } from "lucide-react";
 import CheckBadge from "@/components/ui/check-badge";
 
 interface ProjectManagerProps {
@@ -20,12 +21,11 @@ interface ProjectManagerProps {
 
 export default function ProjectManager({ onSelect, selectedProject, projects, refreshProjects }: ProjectManagerProps) {
   const [newName, setNewName] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingName, setEditingName] = useState("");
   const [loading, setLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
   const [ongoingSession, setOngoingSession] = useState<string | null>(null);
+  const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<Project | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
     projectId: string | null;
@@ -47,21 +47,7 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
     setLoading(false);
   }
 
-  async function handleEdit(id: string) {
-    if (!editingName.trim()) return;
-    setLoading(true);
-    const res = await fetch(`/api/projects/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editingName }),
-    });
-    if (res.ok) {
-      setEditingId(null);
-      setEditingName("");
-      await refreshProjects();
-    }
-    setLoading(false);
-  }
+
 
   async function handleDelete(id: string) {
     setLoading(true);
@@ -168,53 +154,51 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
           <Card key={p.id}>
             <CardContent className="pt-2">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
-                {editingId === p.id ? (
-                  <>
-                    <Input
-                      type="text"
-                      value={editingName}
-                      onChange={e => setEditingName(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button onClick={() => handleEdit(p.id)} disabled={loading || !editingName.trim()}>Save</Button>
-                    <Button onClick={() => { setEditingId(null); setEditingName(""); }} variant="secondary">Cancel</Button>
-                  </>
+                <div className="flex items-center gap-2 flex-1">
+                  <span
+                    className="break-words"
+                    style={{ fontWeight: selectedProject === p.id ? "bold" : undefined }}
+                  >
+                    {p.name}
+                  </span>
+                  <button
+                    onClick={() => setSelectedProjectForDetails(p)}
+                    className="flex items-center border border-muted rounded-md overflow-hidden text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    title="View project details and sessions"
+                  >
+                    <div className="p-1.5">
+                      <Eye className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="w-px h-4 bg-muted"></div>
+                    <div className="p-1.5">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </div>
+                  </button>
+                </div>
+                <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {p.hoursSpent == null ? '0' : `${p.hoursSpent} hours`}</span>
+                {p.status === 'approved' ? (
+                  <CheckBadge>Approved</CheckBadge>
+                ) : p.status === 'finished' ? (
+                  <Badge variant="secondary">Submitted</Badge>
                 ) : (
-                  <>
-                    <span
-                      className={`flex-1 break-words ${onSelect && p.status === 'active' ? "cursor-pointer hover:underline" : ""}`}
-                      onClick={() => onSelect && p.status === 'active' && onSelect(p.id)}
-                      style={{ fontWeight: selectedProject === p.id ? "bold" : undefined }}
+                  <Badge variant="default">Active</Badge>
+                )}
+                {ongoingSession === p.id && (
+                  <Badge variant="outline">Session Active</Badge>
+                )}
+                {p.status === 'active' && (
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <Button 
+                      onClick={() => handleSubmitClick(p)} 
+                      disabled={loading || ongoingSession === p.id} 
+                      variant="outline"
+                      size="sm"
+                      title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
                     >
-                      {p.name}
-                    </span>
-                    <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">Total: {p.hoursSpent == null ? '0' : `${p.hoursSpent} hours`}</span>
-                    {p.status === 'approved' ? (
-                      <CheckBadge>Approved</CheckBadge>
-                    ) : p.status === 'finished' ? (
-                      <Badge variant="secondary">Submitted</Badge>
-                    ) : (
-                      <Badge variant="default">Active</Badge>
-                    )}
-                    {ongoingSession === p.id && (
-                      <Badge variant="outline">Session Active</Badge>
-                    )}
-                    {p.status === 'active' && (
-                      <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-                        <Button onClick={() => { setEditingId(p.id); setEditingName(p.name); }} variant="secondary" size="sm">Edit</Button>
-                        <Button 
-                          onClick={() => handleSubmitClick(p)} 
-                          disabled={loading || ongoingSession === p.id} 
-                          variant="outline"
-                          size="sm"
-                          title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
-                        >
-                          Submit
-                        </Button>
-                        <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive" size="sm">Delete</Button>
-                      </div>
-                    )}
-                  </>
+                      Submit
+                    </Button>
+                    <Button onClick={() => confirmDelete(p.id, p.name)} variant="destructive" size="sm">Delete</Button>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -246,6 +230,14 @@ export default function ProjectManager({ onSelect, selectedProject, projects, re
           onSuccess={handleSubmissionSuccess}
         />
       )}
+
+      {/* Project Details Modal */}
+      <ProjectDetailsModal
+        project={selectedProjectForDetails}
+        isOpen={!!selectedProjectForDetails}
+        onClose={() => setSelectedProjectForDetails(null)}
+        onProjectUpdate={refreshProjects}
+      />
     </div>
   );
 } 
