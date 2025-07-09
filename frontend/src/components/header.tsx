@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { EarningsHeaderSummary } from './earnings-display';
 
 export function Header() {
   return (
@@ -12,6 +13,11 @@ export function Header() {
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo (links to home) */}
           <Logo />
+
+          {/* Stipend summary */}
+          <div className="hidden md:flex items-center flex-1 justify-center">
+            <EarningsHeaderSummary />
+          </div>
 
           {/* Actions: Theme toggle and mobile menu */}
           <div className="flex items-center gap-2">
@@ -31,6 +37,10 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        </div>
+        {/* Mobile: stipend summary below nav */}
+        <div className="flex md:hidden justify-center py-2">
+          <EarningsHeaderSummary />
         </div>
       </div>
     </header>

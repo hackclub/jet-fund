@@ -79,7 +79,7 @@ function HomeContent() {
   // Show full content when authenticated
   return (
     <div className="space-y-6">
-      {/* Top Row: Welcome left, Stipend right, same height */}
+      {/* Top Row: Welcome only (left) */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch w-full">
         {/* Welcome Text (left, only if logged in) */}
         {session?.user && (
@@ -98,12 +98,6 @@ function HomeContent() {
             </p>
           </div>
         )}
-        {/* Stipend/Earnings Card (right) */}
-        <div className="flex-1 flex items-stretch">
-          <div className="w-full flex flex-col justify-center h-full">
-            <EarningsDisplay />
-          </div>
-        </div>
       </div>
 
       {/* Main Grid - Session Timer and Projects */}
