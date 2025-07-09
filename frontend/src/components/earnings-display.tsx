@@ -66,7 +66,7 @@ export default function EarningsDisplay() {
             <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
             <span>Potential: ${earningsData.possibleUsd.toFixed(2)}</span>
           </div>
-          <Progress value={progressPercentage} className="w-full" />
+          <Progress value={progressPercentage} className="w-full" variant="sparkly-gold" />
           <div className="text-xs text-gray-500 text-center">
             {progressPercentage.toFixed(1)}% of potential earnings approved
           </div>
