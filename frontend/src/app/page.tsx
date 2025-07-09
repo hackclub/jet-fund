@@ -13,6 +13,7 @@ import { Plane, Clock, Target, Settings, User } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import type { Project } from "@/lib/db/types";
 import { AccountSettingsButton } from "@/components/account-settings-button";
+import { HackathonCarousel } from "@/components/hackathon-carousel";
 
 function HomeContent() {
   const { data: session, status } = useSession();
@@ -96,6 +97,9 @@ function HomeContent() {
 
       {/* Earnings Display */}
       <EarningsDisplay />
+
+      {/* Hackathon Carousel (in-person events) */}
+      <HackathonCarousel />
 
       {/* Main Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
