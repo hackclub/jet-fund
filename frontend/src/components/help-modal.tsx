@@ -45,11 +45,11 @@ export function HelpModal() {
                 commit link and a screenshot.
               </li>
               <li>
-                <b>Ship Your Project:</b> When you're ready, submit your project
+                <b>Ship Your Project:</b> When you&apos;re ready, submit your project
                 for approval.
               </li>
               <li>
-                <b>Get Reimbursed:</b> Once approved, you'll receive funds in
+                <b>Get Reimbursed:</b> Once approved, you&apos;ll receive funds in
                 your account that can be used to{" "}
                 <a
                   href={REIMBURSEMENT_FORM_URL}

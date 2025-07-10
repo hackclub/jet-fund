@@ -213,7 +213,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
           <AlertDescription>
             <div className="flex items-center justify-between">
               <span>
-                You have no active projects. Create a new project under the "Your Projects" section, then you can start logging time spent programming.
+                You have no active projects. Create a new project under the &quot;Your Projects&quot; section, then you can start logging time spent programming.
               </span>
               <Button onClick={() => setShowNoActiveAlert(false)} variant="ghost" size="sm" className="ml-4">
                 Dismiss

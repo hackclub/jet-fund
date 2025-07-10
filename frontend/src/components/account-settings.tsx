@@ -176,9 +176,13 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between">
-        {/* Removed Close button because the X is already present */}
-      </div>
+      {onClose && (
+        <div className="flex items-center justify-end">
+          <Button variant="outline" onClick={onClose} size="sm">
+            Close
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-8">Loading profile data...</div>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface Hackathon {
   id: string;
@@ -36,7 +37,7 @@ export function HackathonCarousel() {
         // Filter for in-person events only
         const inPerson = data.filter(h => !h.virtual && !h.hybrid);
         setHackathons(inPerson);
-      } catch (e) {
+      } catch {
         setError('Failed to load hackathons.');
       } finally {
         setLoading(false);
@@ -89,7 +90,7 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
   const weservImg = weservUrl(rawImg, 400, 140);
 
   // Decide which image src to use
-  let imgSrc = !weservError ? weservImg : (!directError ? rawImg : undefined);
+  const imgSrc = !weservError ? weservImg : (!directError ? rawImg : undefined);
 
   return (
     <Card className="w-64 flex-shrink-0 scroll-snap-align-start overflow-hidden p-0">
@@ -111,9 +112,11 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
         )}
         {/* Hidden img for loading state */}
         {imgSrc && (
-          <img
+          <Image
             src={imgSrc}
             alt=""
+            width={400}
+            height={140}
             className="hidden"
             onLoad={() => setImgLoaded(true)}
             onError={() => {
