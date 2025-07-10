@@ -121,6 +121,11 @@
   }
 }
 
+/* Reusable purple outline utility for Tailwind */
+.outline-purple {
+  @apply border-2 border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500;
+}
+
 /* Sparkly Gold Progress Bar Animations */
 @keyframes shimmer {
   0% {

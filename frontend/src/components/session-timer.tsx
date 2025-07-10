@@ -232,6 +232,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
               }}
               className="flex flex-col gap-4"
             >
+              <label htmlFor="project-select" className="font-bold text-lg mb-1 text-primary">Select a project</label>
               <Select 
                 value={selectedProject} 
                 onValueChange={setSelectedProject}
@@ -239,12 +240,12 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                   if (open && !hasActiveProject) setShowNoActiveAlert(true);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger id="project-select" className="h-14 shadow-lg text-base font-semibold w-full">
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id} disabled={p.status !== 'active'}>
+                    <SelectItem key={p.id} value={p.id} disabled={p.status !== 'active'} className="text-base py-3">
                       {p.name} {p.status !== 'active' ? `(${p.status === 'submitted' ? 'Submitted' : 'Approved'})` : ''}
                     </SelectItem>
                   ))}
@@ -263,6 +264,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                 type="submit" 
                 disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status !== 'active'}
                 className="w-full"
+                variant="default"
               >
                 {loading ? "Starting..." : "Start Session"}
               </Button>

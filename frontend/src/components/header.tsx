@@ -1,12 +1,31 @@
 "use client";
-import { Plane, Menu } from 'lucide-react';
+import { Plane, Menu, Settings, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { EarningsHeaderSummary } from './earnings-display';
+import { useSession, signOut } from "next-auth/react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import AccountSettings from "@/components/account-settings";
+
+function Logo() {
+  return (
+    <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+      <Plane size={32} className="text-primary" />
+      <div>
+        <h1 className="text-2xl font-bold text-primary">Jet Fund</h1>
+        <p className="text-xs text-muted-foreground -mt-1">Flight stipends for hackathons</p>
+      </div>
+    </Link>
+  );
+}
 
 export function Header() {
+  const { data: session } = useSession();
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,9 +38,41 @@ export function Header() {
             <EarningsHeaderSummary />
           </div>
 
-          {/* Actions: Theme toggle and mobile menu */}
+          {/* Actions: Theme toggle, user menu, and mobile menu */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            {session?.user ? (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                      <User className="h-5 w-5" />
+                      <span className="sr-only">Account menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-3 py-2 border-b mb-1">
+                      <div className="font-medium truncate text-sm">{session.user.name || session.user.email}</div>
+                      <div className="text-xs text-muted-foreground truncate">{session.user.email}</div>
+                    </div>
+                    <DropdownMenuItem onClick={() => setShowAccountSettings(true)}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Dialog open={showAccountSettings} onOpenChange={setShowAccountSettings}>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogTitle>Account Settings</DialogTitle>
+                    <AccountSettings onClose={() => setShowAccountSettings(false)} />
+                  </DialogContent>
+                </Dialog>
+              </>
+            ) : null}
             {/* Mobile menu placeholder for future expansion */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -46,15 +97,3 @@ export function Header() {
     </header>
   );
 }
-
-function Logo() {
-  return (
-    <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-      <Plane size={32} className="text-primary" />
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Jet Fund</h1>
-        <p className="text-xs text-muted-foreground -mt-1">Flight stipends for hackathons</p>
-      </div>
-    </Link>
-  );
-} 

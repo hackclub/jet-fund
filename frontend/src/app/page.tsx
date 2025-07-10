@@ -3,7 +3,6 @@ import SignIn from "@/components/sign-in";
 import { SessionProvider, useSession } from "next-auth/react";
 import SessionTimer from "@/components/session-timer";
 import ProjectManager from "@/components/project-manager";
-import AccountSettings from "@/components/account-settings";
 import EarningsDisplay from "@/components/earnings-display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -12,9 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { Plane, Clock, Target, Settings, User } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Project } from "@/lib/db/types";
-import { AccountSettingsButton } from "@/components/account-settings-button";
 import { HackathonCarousel } from "@/components/hackathon-carousel";
 import { HelpModal } from "@/components/help-modal";
+import AccountSettings from "@/components/account-settings";
 
 function HomeContent() {
   const { data: session, status } = useSession();
@@ -89,6 +88,8 @@ function HomeContent() {
   return (
     <div className="space-y-6">
       <HelpModal />
+      {/* Account Settings Modal (single source of truth) */}
+      <AccountSettingsModal open={showAccountSettings} onOpenChange={setShowAccountSettings} />
       {/* Top Row: Welcome only (left) */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch w-full">
         {/* Welcome Text (left, only if logged in) */}
@@ -163,18 +164,19 @@ function HomeContent() {
       <div ref={hackathonSectionRef}>
         <HackathonCarousel />
       </div>
-
-      {/* Account Settings Button (opens modal) */}
-      <AccountSettingsButton onClick={() => setShowAccountSettings(true)} />
-
-      {/* Account Settings Modal */}
-      <Dialog open={showAccountSettings} onOpenChange={setShowAccountSettings}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogTitle>Account Settings</DialogTitle>
-          <AccountSettings onClose={() => setShowAccountSettings(false)} />
-        </DialogContent>
-      </Dialog>
     </div>
+  );
+}
+
+// Extracted modal for maintainability
+function AccountSettingsModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogTitle>Account Settings</DialogTitle>
+        <AccountSettings onClose={() => onOpenChange(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }
 

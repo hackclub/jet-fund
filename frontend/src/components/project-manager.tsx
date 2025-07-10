@@ -160,7 +160,7 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                   </span>
                   <button
                     onClick={() => setSelectedProjectForDetails(p)}
-                    className="flex items-center border-2 border-purple-500 rounded-lg overflow-hidden text-accent-foreground hover:text-accent-foreground hover:bg-accent/30 hover:ring-2 hover:ring-accent transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="flex items-center outline-purple rounded-lg overflow-hidden text-accent-foreground hover:text-accent-foreground hover:bg-accent/30 hover:ring-2 hover:ring-accent transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
                     title="View project details and sessions"
                   >
                     <div className="p-1">
@@ -195,7 +195,7 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                       disabled={loading || ongoingSession === p.id} 
                       variant="default"
                       size="lg"
-                      className="font-bold shadow-md px-6 py-2 text-base bg-accent text-accent-foreground hover:bg-accent/80 border-purple-500 border-2 focus:ring-2 focus:ring-purple-500"
+                      className="font-bold shadow-md px-6 py-2 text-base bg-accent text-accent-foreground hover:bg-accent/80 outline-purple"
                       title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
                     >
                       Submit

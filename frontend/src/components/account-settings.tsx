@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { LogOut } from "lucide-react";
 
 interface PersonalInfo {
   email: string;
@@ -341,6 +342,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                 disabled={signingOutEverywhere}
                 className="w-full"
               >
+                <LogOut className="w-4 h-4 mr-2" />
                 {signingOutEverywhere ? "Signing Out..." : "Sign Out Everywhere"}
               </Button>
             </CardContent>
@@ -351,6 +353,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             onClick={() => signOut()}
             className="w-full mt-2"
           >
+            <LogOut className="w-4 h-4 mr-2" />
             Sign Out
           </Button>
         </form>

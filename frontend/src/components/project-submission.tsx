@@ -11,7 +11,7 @@ interface ProjectSubmissionProps {
   project: Project;
   onClose: () => void;
   onSuccess: () => void;
-  setShowAccountSettings: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowAccountSettings?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface SubmissionData {
@@ -82,7 +82,7 @@ export default function ProjectSubmission({ project, onClose, onSuccess, setShow
                 className="p-0 h-auto text-inherit hover:text-primary underline"
                 onClick={() => {
                   onClose(); // Close submission modal
-                  setShowAccountSettings(true); // Open settings modal
+                  setShowAccountSettings?.(true); // Open settings modal
                 }}
               >
                 Account Settings
