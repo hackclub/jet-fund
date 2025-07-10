@@ -171,10 +171,8 @@ export default function ProjectDetailsModal({
 
           <TabsContent value="overview" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Project Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-2">
+                <CardTitle className="text-lg mb-1">Project Details</CardTitle>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Status:</span>
                   {project.status === 'approved' ? (

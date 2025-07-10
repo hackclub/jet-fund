@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     }
     
     const updated = await updateSession(body.sessionId, {
+      ...session,
       gitCommitUrl: body.gitCommitUrl,
       imageUrl: body.imageUrl,
     });

@@ -9,6 +9,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import AccountSettings from "@/components/account-settings";
+import { REIMBURSEMENT_FORM_URL } from "@/lib/consts";
 
 function Logo() {
   return (
@@ -36,6 +37,14 @@ export function Header() {
           {/* Stipend summary */}
           <div className="hidden md:flex items-center flex-1 justify-center">
             <EarningsHeaderSummary />
+            <a
+              href={REIMBURSEMENT_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-6 px-4 py-2 rounded-md bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow"
+            >
+              Reimbursement Form
+            </a>
           </div>
 
           {/* Actions: Theme toggle, user menu, and mobile menu */}
@@ -90,8 +99,16 @@ export function Header() {
           </div>
         </div>
         {/* Mobile: stipend summary below nav */}
-        <div className="flex md:hidden justify-center py-2">
+        <div className="flex md:hidden flex-col items-center py-2 gap-2">
           <EarningsHeaderSummary />
+          <a
+            href={REIMBURSEMENT_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 px-4 py-2 rounded-md bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow"
+          >
+            Reimbursement Form
+          </a>
         </div>
       </div>
     </header>

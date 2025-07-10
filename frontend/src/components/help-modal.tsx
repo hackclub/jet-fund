@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { HelpCircle } from "lucide-react";
+import { REIMBURSEMENT_FORM_URL } from "@/lib/consts";
 
 export function HelpModal() {
   const [open, setOpen] = useState(false);
@@ -49,9 +50,18 @@ export function HelpModal() {
               </li>
               <li>
                 <b>Get Reimbursed:</b> Once approved, you'll receive funds in
-                your account that can be used to reimburse travel expenses
+                your account that can be used to{" "}
+                <a
+                  href={REIMBURSEMENT_FORM_URL}
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  reimburse travel expenses
+                </a>
               </li>
             </ul>
+            <p>Need help? DM @Angad Behl on the Hack Club Slack or email <a href="mailto:angad@hackclub.com">angad@hackclub.com</a></p>
           </div>
         </DialogContent>
       </Dialog>

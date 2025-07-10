@@ -1,7 +1,6 @@
 import { getProjectsByUserId } from "./project";
 import { getUserByRecordId } from "./user";
-
-const HOURS_TO_USD = 5; // Constant for converting hours to USD
+import { EARNINGS_MULTIPLIER } from "@/lib/consts";
 
 export interface EarningsData {
   approvedUsd: number;
@@ -32,10 +31,10 @@ export async function getEarningsData(userId: string): Promise<EarningsData> {
       const pendingHours = project.pendingHours || 0;
       const approvedHours = project.approvedHours || 0;
       if (project.status === "approved") {
-        approvedUsd += approvedHours * HOURS_TO_USD;
-        pendingUsd += pendingHours * HOURS_TO_USD;
+        approvedUsd += approvedHours * EARNINGS_MULTIPLIER;
+        pendingUsd += pendingHours * EARNINGS_MULTIPLIER;
       } else {
-        pendingUsd += (pendingHours + approvedHours) * HOURS_TO_USD;
+        pendingUsd += (pendingHours + approvedHours) * EARNINGS_MULTIPLIER;
       }
     }
     
@@ -55,4 +54,4 @@ export async function getEarningsData(userId: string): Promise<EarningsData> {
       pendingUsd: 0,
     };
   }
-} 
+}
