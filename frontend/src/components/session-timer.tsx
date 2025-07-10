@@ -303,7 +303,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <Input
                 type="url"
-                placeholder="Git commit URL"
+                placeholder="https://github.com/mojombo/grit/commit/634396b2f541a9f2d58b00be1a07f0c358b999b3"
                 value={gitCommitUrl}
                 onChange={e => setGitCommitUrl(e.target.value)}
                 required
