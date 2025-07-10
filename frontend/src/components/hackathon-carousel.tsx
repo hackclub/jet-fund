@@ -86,55 +86,57 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
   const [weservError, setWeservError] = useState(false);
   const [directError, setDirectError] = useState(false);
   const rawImg = hackathon.banner || hackathon.logo;
-  const weservImg = weservUrl(rawImg);
+  const weservImg = weservUrl(rawImg, 400, 140);
 
   // Decide which image src to use
   let imgSrc = !weservError ? weservImg : (!directError ? rawImg : undefined);
 
   return (
-    <Card className="w-64 flex-shrink-0 scroll-snap-align-start">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold truncate">{hackathon.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <a href={hackathon.website} target="_blank" rel="noopener noreferrer" className="block w-full h-20 mb-2 relative">
-          {/* Skeleton loader or placeholder */}
-          {!imgLoaded && !directError && (
-            <div className="absolute inset-0 w-full h-full bg-muted animate-pulse rounded flex items-center justify-center">
-              {/* If both images fail, show a placeholder icon */}
-              {weservError && directError && (
-                <span className="text-muted-foreground text-lg">🏁</span>
-              )}
-            </div>
-          )}
-          {imgSrc && (
-            <img
-              src={imgSrc}
-              alt={hackathon.name}
-              className={cn(
-                "w-full h-20 object-cover rounded transition-opacity",
-                imgLoaded ? "opacity-100" : "opacity-0"
-              )}
-              loading="lazy"
-              onLoad={() => setImgLoaded(true)}
-              onError={() => {
-                if (!weservError) setWeservError(true);
-                else setDirectError(true);
-              }}
-              style={{ position: 'absolute', top: 0, left: 0 }}
-            />
-          )}
-        </a>
-        <div className="text-xs mb-2">
-          <span className="block font-medium">
+    <Card className="w-64 flex-shrink-0 scroll-snap-align-start overflow-hidden p-0">
+      {/* Image background section */}
+      <div
+        className={cn(
+          "relative h-36 flex items-end justify-start",
+          !imgSrc && "bg-muted"
+        )}
+        style={imgSrc ? { backgroundImage: `url('${imgSrc}')`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+      >
+        {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
+        {/* Skeleton loader or fallback */}
+        {!imgLoaded && imgSrc && (
+          <div className="absolute inset-0 w-full h-full bg-muted animate-pulse flex items-center justify-center z-10">
+            <span className="text-muted-foreground text-lg">🏁</span>
+          </div>
+        )}
+        {/* Hidden img for loading state */}
+        {imgSrc && (
+          <img
+            src={imgSrc}
+            alt=""
+            className="hidden"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              if (!weservError) setWeservError(true);
+              else setDirectError(true);
+            }}
+          />
+        )}
+        {/* Content overlay: name, date, location */}
+        <div className="relative z-20 p-3 w-full flex flex-col gap-1">
+          <span className="text-white text-lg font-bold drop-shadow-md truncate">{hackathon.name}</span>
+          <span className="text-white text-xs font-medium drop-shadow-md truncate">
             {hackathon.city && hackathon.country
               ? `${hackathon.city}${hackathon.state ? ', ' + hackathon.state : ''}, ${hackathon.country}`
               : 'Location TBA'}
           </span>
-          <span className="block text-muted-foreground">
+          <span className="text-white text-xs drop-shadow-md">
             {formatDateRange(hackathon.start, hackathon.end)}
           </span>
         </div>
+      </div>
+      {/* Only the button below the image */}
+      <CardContent className="pt-3 pb-4 px-4">
         <Button asChild variant="outline" size="sm" className="w-full">
           <a href={hackathon.website} target="_blank" rel="noopener noreferrer">
             Learn More
