@@ -42,18 +42,16 @@ export function EarningsHeaderSummary() {
     ? (earningsData.approvedUsd / totalEarnings) * 100 
     : 0;
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full max-w-2xl">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 w-full">
-        <span className="flex items-center gap-2 text-xs bg-muted px-2 py-1 rounded">
-          <PiggyBank className="h-4 w-4 text-green-600" />
-          <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
-          <span className="text-muted-foreground">|</span>
-          <span>Pending: ${earningsData.pendingUsd.toFixed(2)}</span>
-        </span>
-        <div className="flex items-center gap-1 w-full sm:min-w-[100px] sm:max-w-[160px]">
-          <Progress value={progressPercentage} className="h-2 w-full sm:w-24" variant="sparkly-gold" />
-          <span className="text-[10px] text-gray-500 w-10 text-center">{progressPercentage.toFixed(1)}%</span>
-        </div>
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 sm:gap-6 w-full max-w-2xl mx-auto">
+      <span className="flex items-center gap-2 text-xs bg-muted px-2 py-1 rounded justify-center">
+        <PiggyBank className="h-4 w-4 text-green-600" />
+        <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
+        <span className="text-muted-foreground">|</span>
+        <span>Pending: ${earningsData.pendingUsd.toFixed(2)}</span>
+      </span>
+      <div className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[160px] sm:max-w-[220px] justify-center">
+        <Progress value={progressPercentage} className="h-2 w-full sm:w-32" variant="sparkly-gold" />
+        <span className="text-[10px] text-gray-500 w-10 text-center">{progressPercentage.toFixed(1)}%</span>
       </div>
       <a
         href="https://example.com"

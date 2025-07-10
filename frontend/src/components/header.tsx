@@ -29,22 +29,14 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+        <div className="flex h-16 items-center justify-between gap-4 w-full max-w-5xl mx-auto">
           {/* Logo (links to home) */}
           <Logo />
 
           {/* Stipend summary */}
           <div className="hidden md:flex items-center flex-1 justify-center">
             <EarningsHeaderSummary />
-            <a
-              href={REIMBURSEMENT_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-6 px-4 py-2 rounded-md bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow"
-            >
-              Reimbursement Form
-            </a>
           </div>
 
           {/* Actions: Theme toggle, user menu, and mobile menu */}
@@ -101,14 +93,6 @@ export function Header() {
         {/* Mobile: stipend summary below nav */}
         <div className="flex md:hidden flex-col items-center py-2 gap-2">
           <EarningsHeaderSummary />
-          <a
-            href={REIMBURSEMENT_FORM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 px-4 py-2 rounded-md bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow"
-          >
-            Reimbursement Form
-          </a>
         </div>
       </div>
     </header>
