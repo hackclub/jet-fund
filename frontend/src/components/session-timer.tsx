@@ -263,7 +263,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
               <Button 
                 type="submit" 
                 disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status !== 'active'}
-                className="w-full"
+                className="w-full outline-purple"
                 variant="default"
               >
                 {loading ? "Starting..." : "Start Session"}

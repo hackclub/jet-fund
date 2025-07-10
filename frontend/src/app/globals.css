@@ -124,6 +124,19 @@
 /* Reusable purple outline utility for Tailwind */
 .outline-purple {
   @apply border-2 border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500;
+  position: relative;
+  overflow: hidden;
+}
+.outline-purple::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(90deg, transparent 0%, #a855f7 48%, #c084fc 52%, transparent 100%);
+  opacity: 0.25;
+  animation: shimmer 3.5s linear infinite;
 }
 
 /* Sparkly Gold Progress Bar Animations */
