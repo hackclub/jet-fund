@@ -11,6 +11,7 @@ interface ProjectSubmissionProps {
   project: Project;
   onClose: () => void;
   onSuccess: () => void;
+  setShowAccountSettings: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface SubmissionData {
@@ -20,7 +21,7 @@ interface SubmissionData {
   description: string;
 }
 
-export default function ProjectSubmission({ project, onClose, onSuccess }: ProjectSubmissionProps) {
+export default function ProjectSubmission({ project, onClose, onSuccess, setShowAccountSettings }: ProjectSubmissionProps) {
   const [formData, setFormData] = useState<SubmissionData>({
     playableUrl: "",
     codeUrl: "",
@@ -28,7 +29,7 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
     description: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,7 +73,26 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
       if (res.ok) {
         onSuccess();
       } else {
-        setError(result.error || "Failed to submit project");
+        if (result.error?.includes("Address must be set")) {
+          setError(
+            <span>
+              Please complete your address in{" "}
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-inherit hover:text-primary underline"
+                onClick={() => {
+                  onClose(); // Close submission modal
+                  setShowAccountSettings(true); // Open settings modal
+                }}
+              >
+                Account Settings
+              </Button>
+              {" "}before submitting a project.
+            </span>
+          );
+        } else {
+          setError(result.error || "Failed to submit project");
+        }
       }
     } catch {
       setError("Network error occurred");
@@ -140,16 +160,13 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
           </div>
 
           {error && (
-            <Alert>
+            <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           <div className="flex gap-3 justify-end">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-40 mx-auto py-1 text-sm font-bold shadow-md">
               {loading ? "Submitting..." : "Submit Project"}
             </Button>
           </div>
@@ -157,4 +174,4 @@ export default function ProjectSubmission({ project, onClose, onSuccess }: Proje
       </DialogContent>
     </Dialog>
   );
-} 
+}

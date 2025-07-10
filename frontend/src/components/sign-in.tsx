@@ -13,6 +13,8 @@ export default function SignIn() {
         )
     }
     return (
-        <Button onClick={() => signIn("slack")}>Sign in with Slack</Button>
+            <div className="flex justify-center">
+            <Button onClick={() => signIn("slack")}>Sign in with Slack</Button>
+        </div>
     )
 }

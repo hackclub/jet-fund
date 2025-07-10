@@ -15,12 +15,13 @@ interface ProjectManagerProps {
   projects: Project[];
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
   refreshProjects: () => Promise<void>;
+  setShowAccountSettings: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function ProjectManager({ selectedProject, projects, refreshProjects }: ProjectManagerProps) {
+export default function ProjectManager({ selectedProject, projects, refreshProjects, setShowAccountSettings }: ProjectManagerProps) {
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [submissionError, setSubmissionError] = useState<React.ReactNode | null>(null);
   const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
   const [ongoingSession, setOngoingSession] = useState<string | null>(null);
   const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<Project | null>(null);
@@ -83,7 +84,19 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
         const data = await res.json();
         // Check if all required personal information fields are present
         if (!data.firstName?.trim() || !data.lastName?.trim() || !data.birthday?.trim()) {
-          setSubmissionError("Please complete your profile (first name, last name, and date of birth) in Account Settings before submitting a project.");
+          setSubmissionError(
+            <span>
+              Please complete your profile (first name, last name, and date of birth) in{" "}
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-inherit hover:text-primary underline"
+                onClick={() => setShowAccountSettings(true)}
+              >
+                Account Settings
+              </Button>
+              {" "}before submitting a project.
+            </span>
+          );
           return;
         }
         // If we get a successful response and have personal info, we can proceed
@@ -118,7 +131,7 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
       </Card>
       
       {submissionError && (
-        <Alert>
+        <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold">
           <AlertDescription className="flex items-center justify-between">
             {submissionError}
             <Button 
@@ -147,15 +160,15 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                   </span>
                   <button
                     onClick={() => setSelectedProjectForDetails(p)}
-                    className="flex items-center border border-muted rounded-md overflow-hidden text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    className="flex items-center border-2 border-purple-500 rounded-lg overflow-hidden text-accent-foreground hover:text-accent-foreground hover:bg-accent/30 hover:ring-2 hover:ring-accent transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
                     title="View project details and sessions"
                   >
-                    <div className="p-1.5">
-                      <Eye className="w-3.5 h-3.5" />
+                    <div className="p-1">
+                      <Eye className="w-4 h-4" />
                     </div>
                     {p.status === 'active' && (
-                      <div className="p-1.5">
-                        <Pencil className="w-3.5 h-3.5" />
+                      <div className="p-1">
+                        <Pencil className="w-4 h-4" />
                       </div>
                     )}
                   </button>
@@ -180,8 +193,9 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                     <Button 
                       onClick={() => handleSubmitClick(p)} 
                       disabled={loading || ongoingSession === p.id} 
-                      variant="outline"
-                      size="sm"
+                      variant="default"
+                      size="lg"
+                      className="font-bold shadow-md px-6 py-2 text-base bg-accent text-accent-foreground hover:bg-accent/80 border-purple-500 border-2 focus:ring-2 focus:ring-purple-500"
                       title={ongoingSession === p.id ? "Cannot submit while session is in progress" : ""}
                     >
                       Submit
@@ -202,6 +216,7 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
           project={submissionProject}
           onClose={() => setSubmissionProject(null)}
           onSuccess={handleSubmissionSuccess}
+          setShowAccountSettings={setShowAccountSettings}
         />
       )}
 
@@ -214,4 +229,4 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
       />
     </div>
   );
-} 
+}

@@ -176,11 +176,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
-        {onClose && (
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        )}
+        {/* Removed Close button because the X is already present */}
       </div>
 
       {loading ? (
@@ -323,7 +319,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             )}
             
             {error && (
-              <Alert>
+              <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -361,4 +357,4 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
       )}
     </div>
   );
-} 
+}

@@ -10,16 +10,25 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Plane, Clock, Target, Settings, User } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Project } from "@/lib/db/types";
 import { AccountSettingsButton } from "@/components/account-settings-button";
 import { HackathonCarousel } from "@/components/hackathon-carousel";
+import { HelpModal } from "@/components/help-modal";
 
 function HomeContent() {
   const { data: session, status } = useSession();
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
+  const hackathonSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToHackathons = () => {
+    hackathonSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start' 
+    });
+  };
 
   const fetchProjects = useCallback(async () => {
     const res = await fetch("/api/projects");
@@ -79,6 +88,7 @@ function HomeContent() {
   // Show full content when authenticated
   return (
     <div className="space-y-6">
+      <HelpModal />
       {/* Top Row: Welcome only (left) */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch w-full">
         {/* Welcome Text (left, only if logged in) */}
@@ -94,7 +104,16 @@ function HomeContent() {
               Ready to take flight?
             </h2>
             <p className="text-muted-foreground text-sm md:text-base max-w-md">
-              Track your hackathon projects and earn flight stipends. Every session brings you closer to your next adventure.
+              Get flight stipends to{" "}
+              <button 
+                onClick={scrollToHackathons}
+                className="text-primary hover:text-primary/80 underline cursor-pointer transition-colors"
+                type="button"
+                aria-label="Jump to hackathons section"
+              >
+                hackathons
+              </button>{" "}
+               simply by programming! Every session brings you closer to your next adventure.
             </p>
           </div>
         )}
@@ -134,13 +153,16 @@ function HomeContent() {
               projects={projects}
               setProjects={setProjects}
               refreshProjects={fetchProjects}
+              setShowAccountSettings={setShowAccountSettings}
             />
           </CardContent>
         </Card>
       </div>
 
       {/* Hackathon Carousel - Moved to bottom */}
-      <HackathonCarousel />
+      <div ref={hackathonSectionRef}>
+        <HackathonCarousel />
+      </div>
 
       {/* Account Settings Button (opens modal) */}
       <AccountSettingsButton onClick={() => setShowAccountSettings(true)} />
@@ -162,4 +184,4 @@ export default function Home() {
       <HomeContent />
     </SessionProvider>
   );
-} 
+}

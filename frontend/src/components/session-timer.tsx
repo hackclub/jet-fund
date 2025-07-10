@@ -23,6 +23,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [showNoActiveAlert, setShowNoActiveAlert] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check for unfinished session on mount
@@ -202,8 +203,25 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
     }
   }
 
+  // Helper to check for active projects
+  const hasActiveProject = projects.some(p => p.status === 'active');
+
   return (
     <div className="flex flex-col gap-4 max-w-md mx-auto">
+      {showNoActiveAlert && (
+        <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold mt-2">
+          <AlertDescription>
+            <div className="flex items-center justify-between">
+              <span>
+                You have no active projects. Create a new project under the "Your Projects" section, then you can start logging time spent programming.
+              </span>
+              <Button onClick={() => setShowNoActiveAlert(false)} variant="ghost" size="sm" className="ml-4">
+                Dismiss
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
       {!timerActive && !showForm && (
         <Card>
           <CardContent className="pt-6">
@@ -214,7 +232,13 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
               }}
               className="flex flex-col gap-4"
             >
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <Select 
+                value={selectedProject} 
+                onValueChange={setSelectedProject}
+                onOpenChange={open => {
+                  if (open && !hasActiveProject) setShowNoActiveAlert(true);
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
@@ -322,4 +346,4 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       )}
     </div>
   );
-} 
+}
