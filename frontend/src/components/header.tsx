@@ -29,18 +29,19 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top row: logo and actions (desktop), logo and menu (mobile) */}
         <div className="flex h-16 items-center justify-between gap-4 w-full max-w-5xl mx-auto">
           {/* Logo (links to home) */}
           <Logo />
 
-          {/* Stipend summary */}
+          {/* Desktop: Actions and stipend summary */}
           <div className="hidden md:flex items-center flex-1 justify-center">
             <EarningsHeaderSummary />
           </div>
 
-          {/* Actions: Theme toggle, user menu, and mobile menu */}
-          <div className="flex items-center gap-2">
+          {/* Desktop: Actions */}
+          <div className="hidden md:flex items-center gap-2">
             <ThemeToggle />
             {session?.user ? (
               <>
@@ -74,20 +75,45 @@ export function Header() {
                 </Dialog>
               </>
             ) : null}
-            {/* Mobile menu placeholder for future expansion */}
+          </div>
+
+          {/* Mobile: Hamburger menu with all actions inside */}
+          <div className="md:hidden flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Menu className="h-4 w-4" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem asChild>
                   <Link href="/">Home</Link>
                 </DropdownMenuItem>
+                {/* Centered theme toggle */}
+                <div className="flex justify-center items-center py-2">
+                  <ThemeToggle />
+                </div>
+                {session?.user && (
+                  <>
+                    <DropdownMenuItem onClick={() => setShowAccountSettings(true)}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
+            <Dialog open={showAccountSettings} onOpenChange={setShowAccountSettings}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogTitle>Account Settings</DialogTitle>
+                <AccountSettings onClose={() => setShowAccountSettings(false)} />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         {/* Mobile: stipend summary below nav */}
