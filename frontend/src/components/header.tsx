@@ -13,11 +13,18 @@ import AccountSettings from "@/components/account-settings";
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-      <Plane size={32} className="text-primary" />
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Jet Fund</h1>
-        <p className="text-xs text-muted-foreground -mt-1">Flight stipends for hackathons</p>
+    <Link
+      href="/"
+      className="flex flex-row items-center gap-2 hover:opacity-80 transition-opacity min-w-0 max-w-full"
+    >
+      <Plane size={28} className="text-primary shrink-0" />
+      <div className="flex flex-col min-w-0">
+        <h1 className="text-lg sm:text-2xl font-bold text-primary whitespace-nowrap flex-shrink">
+          Jet Fund
+        </h1>
+        <p className="text-[10px] sm:text-xs text-muted-foreground -mt-1 leading-tight hidden xs:block">
+          Flight stipends for hackathons
+        </p>
       </div>
     </Link>
   );

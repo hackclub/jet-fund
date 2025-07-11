@@ -194,7 +194,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
               <CardTitle>Personal Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email *</Label>
                   <Input
@@ -269,7 +269,7 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
                     onChange={(e) => setAddressInfo(prev => ({ ...prev, addressLine2: e.target.value }))}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
                     <Input

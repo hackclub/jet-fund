@@ -42,7 +42,7 @@ export function EarningsHeaderSummary() {
     ? (earningsData.approvedUsd / totalEarnings) * 100 
     : 0;
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 sm:gap-6 w-full max-w-2xl mx-auto">
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-2 lg:gap-6 w-full max-w-2xl mx-auto">
       <span className="flex items-center gap-2 text-xs bg-muted px-2 py-1 rounded justify-center">
         <PiggyBank className="h-4 w-4 text-green-600" />
         <span>Approved: ${earningsData.approvedUsd.toFixed(2)}</span>
