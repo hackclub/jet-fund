@@ -7,25 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plane, Clock, Target, User } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Project } from "@/lib/db/types";
-import { HackathonCarousel } from "@/components/hackathon-carousel";
 import { HelpModal } from "@/components/help-modal";
 import AccountSettings from "@/components/account-settings";
+import { useRouter } from "next/navigation";
 
 function HomeContent() {
   const { data: session, status } = useSession();
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
-  const hackathonSectionRef = useRef<HTMLDivElement>(null);
-
-  const scrollToHackathons = () => {
-    hackathonSectionRef.current?.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'start' 
-    });
-  };
+  const router = useRouter();
 
   const fetchProjects = useCallback(async () => {
     const res = await fetch("/api/projects");
@@ -38,6 +31,13 @@ function HomeContent() {
       fetchProjects(); 
     }
   }, [fetchProjects, session]);
+
+  // Redirect unauthenticated users to landing page
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/landing");
+    }
+  }, [status, router]);
 
   // Show loading state while checking authentication
   if (status === "loading") {
@@ -55,42 +55,15 @@ function HomeContent() {
     );
   }
 
-  // Show only sign-in when not authenticated
-  if (!session?.user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <Plane size={48} className="text-primary" />
-                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
-              </div>
-            </div>
-            <CardTitle className="text-2xl bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Welcome to Jet Fund
-            </CardTitle>
-            <p className="text-muted-foreground">
-              Earn flight stipends for travelling to hackathons
-            </p>
-          </CardHeader>
-          <CardContent>
-            <SignIn />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   // Show full content when authenticated
   return (
     <div className="space-y-6">
       <HelpModal />
       {/* Account Settings Modal (single source of truth) */}
       <AccountSettingsModal open={showAccountSettings} onOpenChange={setShowAccountSettings} />
-      {/* Top Row: Welcome only (left) */}
+      
+      {/* Welcome Section */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch w-full">
-        {/* Welcome Text (left, only if logged in) */}
         {session?.user && (
           <div className="flex flex-col justify-center items-center md:items-start flex-1 bg-background/80 rounded-lg p-4 md:p-6 min-h-full">
             <div className="flex items-center gap-2 mb-2">
@@ -103,23 +76,14 @@ function HomeContent() {
               Ready to take flight?
             </h2>
             <p className="text-muted-foreground text-sm md:text-base max-w-md">
-              Get flight stipends to{" "}
-              <button 
-                onClick={scrollToHackathons}
-                className="text-primary hover:text-primary/80 underline cursor-pointer transition-colors"
-                type="button"
-                aria-label="Jump to hackathons section"
-              >
-                hackathons
-              </button>{" "}
-               simply by programming! Every session brings you closer to your next adventure.
+              Get flight stipends to hackathons simply by programming! Every session brings you closer to your next adventure. For more information, open the help modal from the bottom right corner.
             </p>
           </div>
         )}
       </div>
 
       {/* Main Grid - Session Timer and Projects */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Session Timer Card */}
         <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader>
@@ -156,11 +120,6 @@ function HomeContent() {
             />
           </CardContent>
         </Card>
-      </div>
-
-      {/* Hackathon Carousel - Moved to bottom */}
-      <div ref={hackathonSectionRef}>
-        <HackathonCarousel />
       </div>
     </div>
   );

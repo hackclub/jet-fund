@@ -32,7 +32,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/* Header (logo, theme toggle, etc.) */}
+            {/* Header (logo, theme toggle, etc.) - shown on all pages */}
             <Header />
 
             {/* Main Content */}
