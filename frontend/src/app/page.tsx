@@ -1,12 +1,11 @@
 "use client";
-import SignIn from "@/components/sign-in";
 import { SessionProvider, useSession } from "next-auth/react";
 import SessionTimer from "@/components/session-timer";
 import ProjectManager from "@/components/project-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plane, Clock, Target, User } from "lucide-react";
+import { Clock, Target, User } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import type { Project } from "@/lib/db/types";
 import { HelpModal } from "@/components/help-modal";

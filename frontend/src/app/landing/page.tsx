@@ -105,7 +105,7 @@ function LandingContent() {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">
-                When you're ready, submit your project for approval.
+                When you&apos;re ready, submit your project for approval.
               </p>
             </CardContent>
           </Card>
