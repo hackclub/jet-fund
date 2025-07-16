@@ -138,10 +138,6 @@ function LandingContent() {
       {/* Hackathon Carousel */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-center">Available Hackathons</h2>
-        <p className="text-center text-muted-foreground">
-          Jet Fund allows you to fly to any community-ran hackathon on{' '}
-          <a href="https://hackathons.hackclub.com/" target="_blank" rel="noopener noreferrer" className="underline text-primary">hackathons.hackclub.com</a>.
-        </p>
         <HackathonCarousel />
       </div>
     </div>
