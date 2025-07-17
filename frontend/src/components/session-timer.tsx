@@ -144,7 +144,10 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       method: "POST",
       body: formData,
     });
-    if (!response.ok) throw new Error("Image upload failed");
+    if (!response.ok) {
+      console.error(response);
+      throw new Error("Image upload failed");
+    }
     const data = await response.json();
     return data.url;
   }

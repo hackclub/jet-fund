@@ -42,12 +42,12 @@ export async function POST(req: NextRequest) {
     const durationMs = endTime.getTime() - startTime.getTime();
     const durationHours = durationMs / (1000 * 60 * 60);
     
-    // Prevent sessions longer than 24 hours
-    if (durationHours > 24) {
-      return NextResponse.json({ 
-        error: "Session duration exceeds maximum allowed time of 24 hours." 
-      }, { status: 400 });
-    }
+    // Prevent sessions longer than 24 hours. Commenting out for now since if you forget to end a session, how are you supposed to start a new one?
+    // if (durationHours > 24) {
+    //   return NextResponse.json({ 
+    //     error: "Session duration exceeds maximum allowed time of 24 hours." 
+    //   }, { status: 400 });
+    // }
     
     // Prevent sessions with negative duration (end before start)
     if (durationHours < 0) {

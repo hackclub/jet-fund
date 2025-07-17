@@ -3,7 +3,8 @@ import SignIn from "@/components/sign-in";
 import { SessionProvider, useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plane, Clock, Target, PiggyBank } from "lucide-react";
+import { Clock, Target, PiggyBank, Plane } from "lucide-react";
+import Image from 'next/image';
 import { HackathonCarousel } from "@/components/hackathon-carousel";
 import { useRouter } from "next/navigation";
 import { REIMBURSEMENT_FORM_URL } from "@/lib/consts";
@@ -32,35 +33,31 @@ function LandingContent() {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <div className="text-center space-y-6">
-        <div className="flex justify-center mb-6">
-          <div className="relative">
-            <Plane size={64} className="text-primary" />
-            <div className="absolute -top-3 -right-3 w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+      <div className="text-center space-y-6 flex flex-col items-center justify-center min-h-[350px]">
+        <div className="relative z-10 w-full flex flex-col items-center space-y-6">
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            Jet Fund
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Get travel stipends for high school hackathons by building projects
+          </p>
+          <div className="flex justify-center">
+            <Card className="w-full max-w-md">
+              <CardContent>
+                {session?.user ? (
+                  <Button 
+                    onClick={() => router.push("/")} 
+                    className="w-full"
+                    size="lg"
+                  >
+                    Go to App
+                  </Button>
+                ) : (
+                  <SignIn />
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </div>
-        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-          Jet Fund
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Get travel stipends for high school hackathons by building projects
-        </p>
-        <div className="flex justify-center">
-          <Card className="w-full max-w-md">
-            <CardContent>
-              {session?.user ? (
-                <Button 
-                  onClick={() => router.push("/")} 
-                  className="w-full"
-                  size="lg"
-                >
-                  Go to App
-                </Button>
-              ) : (
-                <SignIn />
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
 

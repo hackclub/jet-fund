@@ -4,6 +4,7 @@ import localFont from 'next/font/local'
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { SessionProvider } from "next-auth/react";
+import { FullPageLogo } from "@/components/full-page-logo";
 
 export const metadata: Metadata = {
   title: "Jet Fund",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+        {/* <link rel="icon" href="/assets/Jet_Fund.png" type="image/x-icon" /> */}
       </head>
       <body className={`${phantomSans.className} antialiased min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900`}>
         <SessionProvider>
@@ -49,6 +51,7 @@ export default function RootLayout({
             </div>
           </ThemeProvider>
         </SessionProvider>
+        <FullPageLogo />
       </body>
     </html>
   );

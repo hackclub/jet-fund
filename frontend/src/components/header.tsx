@@ -1,8 +1,9 @@
 "use client";
-import { Plane, Menu, Settings, User, LogOut } from 'lucide-react';
+import { Menu, Settings, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ThemeToggle } from './theme-toggle';
-import { Button } from './ui/button';
+import { Button } from './ui/button'; 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { EarningsHeaderSummary } from './earnings-display';
 import { useSession, signOut } from "next-auth/react";
@@ -17,7 +18,13 @@ function Logo() {
       href="/"
       className="flex flex-row items-center gap-2 hover:opacity-80 transition-opacity min-w-0 max-w-full"
     >
-      <Plane size={28} className="text-primary shrink-0" />
+      <Image 
+        src="/assets/Jet_Fund.png" 
+        alt="Jet Fund Logo"
+        width={60} 
+        height={60} 
+        className="shrink-0"
+      />
       <div className="flex flex-col min-w-0">
         <h1 className="text-lg sm:text-2xl font-bold text-primary whitespace-nowrap flex-shrink">
           Jet Fund
