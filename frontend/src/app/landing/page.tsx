@@ -118,16 +118,7 @@ function LandingContent() {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">
-                Once approved, use your funds to{" "}
-                <a
-                  href={REIMBURSEMENT_FORM_URL}
-                  className="text-primary hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  reimburse travel expenses
-                </a>
-                .
+                Once approved, use your funds to reimburse travel expenses. Alternatively, you can request a virtual grant card to book flights/transport.
               </p>
             </CardContent>
           </Card>
