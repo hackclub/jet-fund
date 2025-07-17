@@ -84,23 +84,21 @@ export async function updateProject(
   }
 ): Promise<Project | null> {
   try {
-    const updateFields: Record<string, string | number | boolean> = {};
-    
-    if (data.name !== undefined) updateFields.name = data.name;
-    if (data.status !== undefined) updateFields.status = data.status;
-    if (data.playableUrl !== undefined) updateFields.playableUrl = data.playableUrl;
-    if (data.codeUrl !== undefined) updateFields.codeUrl = data.codeUrl;
-    if (data.screenshotUrl !== undefined) updateFields.screenshotUrl = data.screenshotUrl;
-    if (data.description !== undefined) updateFields.description = data.description;
-
-    const updated = await base(PROJECTS_TABLE).update([
+    const record = await base(PROJECTS_TABLE).update([
       {
         id,
-        fields: updateFields,
+        fields: {
+          name: data.name || "",
+          status: data.status || "active",
+          playableUrl: data.playableUrl || "",
+          codeUrl: data.codeUrl || "",
+          screenshotUrl: data.screenshotUrl || "",
+          description: data.description || "",
+        },
       }
     ]);
     
-    return recordToProject(updated[0]);
+    return recordToProject(record[0]);
   } catch (err) {
     console.error("Error updating project:", err);
     return null;

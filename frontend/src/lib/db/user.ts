@@ -92,6 +92,28 @@ export async function ensureUser({ slackId }: { slackId: string }): Promise<User
 
 /**
  * Updates a user profile in Airtable.
+ * 
+ * NOTE: This function requires complete personalInfo data. If you only want to update
+ * specific fields (e.g., just the name), you must provide all existing personalInfo
+ * fields along with your changes. This is by design to ensure data consistency.
+ * 
+ * For partial updates, consider:
+ * 1. Fetching the current user data first
+ * 2. Merging with your changes
+ * 3. Passing the complete personalInfo object
+ * 
+ * Example:
+ * ```typescript
+ * const currentUser = await getUserByRecordId(id);
+ * const updated = await updateUserProfile(id, {
+ *   personalInfo: {
+ *     ...currentUser,           // Preserve existing data
+ *     firstName: "New Name",    // Override specific field
+ *   },
+ *   addressInfo: null,          // Don't update address
+ * });
+ * ```
+ * 
  * Returns the updated profile or null if failed.
  */
 export async function updateUserProfile(
@@ -114,12 +136,12 @@ export async function updateUserProfile(
   }
 ): Promise<User | null> {
   try {
-    const updateFields: Record<string, string> = {
-      email: data.personalInfo.email,
-      firstName: data.personalInfo.firstName,
-      lastName: data.personalInfo.lastName,
-    };
-
+    const updateFields: Record<string, string> = {};
+    
+    // Always update personal info fields
+    updateFields.email = data.personalInfo.email;
+    updateFields.firstName = data.personalInfo.firstName;
+    updateFields.lastName = data.personalInfo.lastName;
     if (data.personalInfo.birthday) {
       updateFields.birthday = data.personalInfo.birthday;
     }
@@ -138,15 +160,14 @@ export async function updateUserProfile(
       }
     }
 
-    const updated = await base(USERS_TABLE).update([
+    const record = await base(USERS_TABLE).update([
       {
         id,
         fields: updateFields,
       },
     ]);
 
-    const record = updated[0];
-    return recordToUser(record);
+    return recordToUser(record[0]);
   } catch (err) {
     console.error("Error updating user profile:", err);
     return null;

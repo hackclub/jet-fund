@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import SignIn from "@/components/sign-in";
 import { SessionProvider, useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,13 @@ import { REIMBURSEMENT_FORM_URL } from "@/lib/consts";
 function LandingContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  // Redirect authenticated users to the main app
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      router.push("/");
+    }
+  }, [status, session, router]);
 
   // Show loading state while checking authentication
   if (status === "loading") {
@@ -28,6 +36,11 @@ function LandingContent() {
     );
   }
 
+  // Don't show landing page content if user is authenticated
+  if (status === "authenticated" && session?.user) {
+    return null;
+  }
+
   // Show landing page content
   return (
     <div className="space-y-8">
@@ -43,17 +56,7 @@ function LandingContent() {
           <div className="flex justify-center">
             <Card className="w-full max-w-md">
               <CardContent>
-                {session?.user ? (
-                  <Button 
-                    onClick={() => router.push("/")} 
-                    className="w-full"
-                    size="lg"
-                  >
-                    Go to App
-                  </Button>
-                ) : (
-                  <SignIn />
-                )}
+                <SignIn />
               </CardContent>
             </Card>
           </div>

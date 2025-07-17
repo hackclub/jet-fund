@@ -61,6 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Update project with submission data
     const updatedProject = await updateProject(id, {
+      ...existingProject,
       status: "submitted",
       playableUrl: body.playableUrl,
       codeUrl: body.codeUrl,

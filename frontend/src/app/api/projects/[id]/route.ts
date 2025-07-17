@@ -35,7 +35,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Cannot edit a submitted project." }, { status: 400 });
   }
   
-  const updated = await updateProject(id, { name: body.name });
+  const updated = await updateProject(id, {
+    ...project,
+    name: body.name,
+  });
   if (!updated) {
     return NextResponse.json({ error: "Failed to update project." }, { status: 500 });
   }

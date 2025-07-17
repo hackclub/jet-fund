@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
     // }
     
     const updated = await updateSession(body.sessionId, {
+      ...session,
       endTime: now,
       status: "finished",
     });

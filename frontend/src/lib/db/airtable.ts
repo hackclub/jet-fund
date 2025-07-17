@@ -47,33 +47,7 @@ export async function createSession(session: Omit<Session, "id">): Promise<Sessi
   };
 }
 
-/**
- * Updates a session in Airtable Sessions table by ID.
- * @param sessionId The session record ID
- * @param fields Fields to update (endTime, gitCommitUrl, imageUrl)
- * @returns The updated Session record
- */
-export async function updateSession(sessionId: string, fields: Partial<Pick<Session, "endTime" | "gitCommitUrl" | "imageUrl">>): Promise<Session> {
-  const updated = await base(SESSIONS_TABLE).update([
-    {
-      id: sessionId,
-      fields,
-    },
-  ]);
-  const record = updated[0];
-  return {
-    id: record.id,
-    user: record.get("user") as string[],
-    project: record.get("project") as string[],
-    startTime: record.get("startTime") as string,
-    endTime: record.get("endTime") as string,
-    gitCommitUrl: record.get("gitCommitUrl") as string,
-    imageUrl: record.get("imageUrl") as string,
-    status: (["finished", "approved", "rejected"].includes(record.get("status") as string)
-      ? (record.get("status") as string)
-      : "ongoing") as "ongoing" | "finished" | "approved" | "rejected",
-  };
-}
+
 
 /**
  * Fetches the current unfinished session for a user (endTime is empty).
