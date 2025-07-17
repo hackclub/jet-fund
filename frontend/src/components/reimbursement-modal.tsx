@@ -13,7 +13,7 @@ export function ReimbursementModal({ open, onOpenChange }: ReimbursementModalPro
         <DialogHeader>
           <DialogTitle>Request Reimbursement</DialogTitle>
           <DialogDescription>
-            The reimbursement flow isn't yet implemented, but should be soon. If you need to convert your funds to a reimbursement right now, message @Angad Behl
+            The reimbursement flow isn&apos;t yet implemented, but should be soon. If you need to convert your funds to a reimbursement right now, message @Angad Behl
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end">

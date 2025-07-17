@@ -4,7 +4,6 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Target, PiggyBank, Plane } from "lucide-react";
-import Image from 'next/image';
 import { HackathonCarousel } from "@/components/hackathon-carousel";
 import { useRouter } from "next/navigation";
 import { REIMBURSEMENT_FORM_URL } from "@/lib/consts";
