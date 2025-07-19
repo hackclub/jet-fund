@@ -76,7 +76,16 @@ function LandingContent() {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">
-                Create a project and use the session timer to log your coding hours.
+                Create a project and track your coding hours using{" "}
+                <a
+                  href="https://hackatime.hackclub.com/"
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Hackatime
+                </a>{" "}
+                for automatic tracking or manual session timers.
               </p>
             </CardContent>
           </Card>
@@ -90,7 +99,7 @@ function LandingContent() {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">
-                Provide a Git commit link and screenshot at the end of each session.
+                Provide a Git commit link and screenshot for manual sessions (automatic with Hackatime).
               </p>
             </CardContent>
           </Card>

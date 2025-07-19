@@ -38,12 +38,28 @@ export function HelpModal() {
             </p>
             <ul className="list-disc space-y-2 pl-5">
               <li>
-                <b>Log Your Work:</b> Create a project and use the session timer
-                to log your coding hours.
+                <b>Log Your Work:</b> Create a project and track your coding hours using either:
+                <ul className="list-disc space-y-1 pl-5 mt-1">
+                  <li>
+                    <b>Hackatime:</b> Connect your project to{" "}
+                    <a
+                      href="https://hackatime.hackclub.com/"
+                      className="text-primary hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Hackatime
+                    </a>{" "}
+                    for automatic time tracking
+                  </li>
+                  <li>
+                    <b>Manual Sessions:</b> Use the session timer to manually log your coding hours
+                  </li>
+                </ul>
               </li>
               <li>
                 <b>Submit Proof:</b> At the end of each session, provide a Git
-                commit link and a screenshot.
+                commit link and a screenshot (only required for manual sessions).
               </li>
               <li>
                 <b>Ship Your Project:</b> When you&apos;re ready, submit your project
