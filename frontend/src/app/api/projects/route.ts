@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
   
   const project = await createProject({
     name: body.name,
-    user: [user.airtableId]
+    user: [user.airtableId],
+    hackatimeProjectName: body.hackatimeProjectName
   });
   
   if (!project) {

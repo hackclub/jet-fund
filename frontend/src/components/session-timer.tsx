@@ -23,6 +23,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [showHackatimeInfo, setShowHackatimeInfo] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check for unfinished session on mount
@@ -160,6 +161,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       setLoading(false);
       return;
     }
+
     let imageUrl = "";
     if (image) {
       try {
@@ -170,11 +172,13 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
         return;
       }
     }
+
     const body = {
       sessionId,
       gitCommitUrl,
       imageUrl,
     };
+
     try {
       const res = await fetch("/api/sessions/submit", {
         method: "POST",
@@ -228,12 +232,49 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                 <SelectContent>
                   {projects.map(p => (
                     <SelectItem key={p.id} value={p.id} disabled={p.status !== 'active'} className="text-base py-3">
-                      {p.name} {p.status !== 'active' ? `(${p.status === 'submitted' ? 'Submitted' : 'Approved'})` : ''}
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">
+                          {p.name} {p.status !== 'active' ? `(${p.status === 'submitted' ? 'Submitted' : 'Approved'})` : ''}
+                        </span>
+                        {(p.approvedHours !== undefined || p.pendingHours !== undefined) && (
+                          <span className="text-sm text-muted-foreground">
+                            {p.approvedHours || 0} approved, {p.pendingHours || 0} pending hours
+                          </span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             
+              {/* Hackatime Info */}
+              {selectedProject && projects.find(p => p.id === selectedProject)?.status === 'active' && (
+                <div className="border rounded-lg p-4 bg-muted/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-sm">Hackatime Integration</h3>
+                    {projects.find(p => p.id === selectedProject)?.hackatimeProjectName && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Connected</span>
+                    )}
+                  </div>
+                  
+                  {projects.find(p => p.id === selectedProject)?.hackatimeProjectName ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        Connected to: <strong>{projects.find(p => p.id === selectedProject)?.hackatimeProjectName}</strong>
+                      </p>
+                      <p className="text-xs text-green-700 bg-green-50 p-2 rounded">
+                        ✓ This project is connected to Hackatime for automatic time tracking. 
+                        Manual session logging is optional but still available.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      You can also link this project to Hackatime for automatic time tracking. 
+                      Edit the project to set up the connection.
+                    </p>
+                  )}
+                </div>
+              )}
               
               <Button 
                 type="submit" 

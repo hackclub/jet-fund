@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import ProjectSubmission from "@/components/project-submission";
 import ProjectDetailsModal from "@/components/project-details-modal";
+import HackatimeProjectSelect from "@/components/hackatime-project-select";
 import type { Project } from "@/lib/db/types";
 import { Eye, Pencil } from "lucide-react";
 import CheckBadge from "@/components/ui/check-badge";
@@ -20,6 +21,8 @@ interface ProjectManagerProps {
 
 export default function ProjectManager({ selectedProject, projects, refreshProjects, setShowAccountSettings }: ProjectManagerProps) {
   const [newName, setNewName] = useState("");
+  const [newHackatimeProject, setNewHackatimeProject] = useState("");
+  const [showHackatimeSelect, setShowHackatimeSelect] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState<React.ReactNode | null>(null);
   const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
@@ -33,10 +36,15 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newName }),
+      body: JSON.stringify({ 
+        name: newName,
+        hackatimeProjectName: newHackatimeProject || undefined
+      }),
     });
     if (res.ok) {
       setNewName("");
+      setNewHackatimeProject("");
+      setShowHackatimeSelect(false);
       await refreshProjects();
     }
     setLoading(false);
@@ -117,15 +125,45 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
     <div className="flex flex-col gap-4">
       <Card>
         <CardContent className="pt-2">
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="New project name"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="New project name"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                className="flex-1"
+              />
+              <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
+            </div>
+            
+            {/* Hackatime Project Selection */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowHackatimeSelect(!showHackatimeSelect)}
+                >
+                  {showHackatimeSelect ? "Hide" : "Add"} Hackatime Project (Optional)
+                </Button>
+                {newHackatimeProject && (
+                  <span className="text-sm text-muted-foreground">
+                    Selected: {newHackatimeProject}
+                  </span>
+                )}
+              </div>
+              
+                               {showHackatimeSelect && (
+                   <HackatimeProjectSelect
+                     value={newHackatimeProject}
+                     onValueChange={setNewHackatimeProject}
+                     placeholder="Select a Hackatime project (optional)"
+                     showClearButton={true}
+                   />
+                 )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -174,7 +212,17 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                   </button>
                 </div>
                 <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">
-                  {p.approvedHours || 0} approved, {p.pendingHours || 0} pending hours
+                  {p.hackatimeProjectName ? (
+                    <div>
+                      <div>{p.approvedHours || 0} approved, {p.pendingHours || 0} pending hours</div>
+                      <div className="text-xs">
+                        <div>Approved: {p.sessionApprovedHours || 0}h session + {p.hackatimeApprovedHours || 0}h hackatime</div>
+                        <div>Pending: {p.sessionPendingHours || 0}h session + {p.hackatimePendingHours || 0}h hackatime</div>
+                      </div>
+                    </div>
+                  ) : (
+                    `${p.approvedHours || 0} approved, ${p.pendingHours || 0} pending hours`
+                  )}
                 </span>
                 {p.status === 'approved' ? (
                   <CheckBadge>Approved</CheckBadge>
@@ -207,8 +255,6 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
           </Card>
         ))}
       </div>
-
-
 
       {/* Project Submission Modal */}
       {submissionProject && (

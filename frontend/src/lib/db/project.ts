@@ -16,6 +16,12 @@ function recordToProject(record: AirtableRecord<FieldSet>): Project {
     codeUrl: record.get('codeUrl') as string | undefined,
     screenshotUrl: record.get('screenshotUrl') as string | undefined,
     description: record.get('description') as string | undefined,
+    // Hackatime integration
+    hackatimeProjectName: record.get('hackatimeProjectName') as string | undefined,
+    sessionPendingHours: record.get('sessionPendingHours') as number | undefined,
+    sessionApprovedHours: record.get('sessionApprovedHours') as number | undefined,
+    hackatimePendingHours: record.get('hackatimePendingHours') as number | undefined,
+    hackatimeApprovedHours: record.get('hackatimeApprovedHours') as number | undefined,
     pendingHours: record.get('pendingHours') as number | undefined,
     approvedHours: record.get('approvedHours') as number | undefined,
     rejectionReason: record.get('rejectionReason') as string | undefined,
@@ -53,6 +59,7 @@ export async function getProjectsByUserId(userId: string): Promise<Project[]> {
 export async function createProject(data: {
   name: string;
   user: string[]; // Array of user record IDs
+  hackatimeProjectName?: string;
 }): Promise<Project | null> {
   try {
     const created = await base(PROJECTS_TABLE).create([
@@ -61,6 +68,7 @@ export async function createProject(data: {
           name: data.name,
           user: data.user,
           status: "active",
+          hackatimeProjectName: data.hackatimeProjectName || "",
         }
       }
     ]);
@@ -81,6 +89,7 @@ export async function updateProject(
     codeUrl?: string;
     screenshotUrl?: string;
     description?: string;
+    hackatimeProjectName?: string;
   }
 ): Promise<Project | null> {
   try {
@@ -94,6 +103,7 @@ export async function updateProject(
           codeUrl: data.codeUrl || "",
           screenshotUrl: data.screenshotUrl || "",
           description: data.description || "",
+          hackatimeProjectName: data.hackatimeProjectName || "",
         },
       }
     ]);

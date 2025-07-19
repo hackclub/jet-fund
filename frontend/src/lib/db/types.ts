@@ -32,8 +32,14 @@ export interface Project {
   codeUrl?: string;
   screenshotUrl?: string;
   description?: string;
-  readonly pendingHours?: number; // Rollup of session hoursSpent where session.status !== "approved"
-  readonly approvedHours?: number; // Rollup of session hoursSpent where session.status === "approved"
+  // Hackatime integration
+  hackatimeProjectName?: string; // The project name in Hackatime (if different from local name)
+  readonly sessionPendingHours?: number; // Rollup of session hoursSpent where session.status !== "approved"
+  readonly sessionApprovedHours?: number; // Rollup of session hoursSpent where session.status === "approved"
+  readonly hackatimePendingHours?: number; // Hours from Hackatime (synced via automation)
+  readonly hackatimeApprovedHours?: number; // Approved Hackatime hours (set manually)
+  readonly pendingHours?: number; // Total pending hours: sessionPendingHours + hackatimePendingHours
+  readonly approvedHours?: number; // Total approved hours: sessionApprovedHours + hackatimeApprovedHours
   readonly rejectionReason?: string; // Set by reviewers in Airtable when status is "rejected"
 }
 

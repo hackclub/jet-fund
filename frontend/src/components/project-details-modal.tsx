@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
+import HackatimeProjectSelect from "@/components/hackatime-project-select";
 import { Calendar, Clock, GitBranch, Image, ExternalLink, Trash2 } from "lucide-react";
 import type { Project, Session } from "@/lib/db/types";
 
@@ -27,6 +28,7 @@ export default function ProjectDetailsModal({
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editHackatimeProjectName, setEditHackatimeProjectName] = useState("");
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
@@ -54,6 +56,7 @@ export default function ProjectDetailsModal({
   useEffect(() => {
     if (project && isOpen) {
       setEditName(project.name);
+      setEditHackatimeProjectName(project.hackatimeProjectName || "");
       fetchSessions();
     }
   }, [project, isOpen, fetchSessions]);
@@ -66,7 +69,10 @@ export default function ProjectDetailsModal({
       const res = await fetch(`/api/projects/${project.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName }),
+        body: JSON.stringify({ 
+          name: editName,
+          hackatimeProjectName: editHackatimeProjectName.trim() || undefined
+        }),
       });
       
       if (res.ok) {
@@ -131,18 +137,30 @@ export default function ProjectDetailsModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {editing ? (
-              <div className="flex items-center gap-2 flex-1">
-                <Input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={handleSaveEdit} disabled={loading || !editName.trim()} size="sm">
-                  Save
-                </Button>
-                <Button onClick={() => setEditing(false)} variant="secondary" size="sm">
-                  Cancel
-                </Button>
+              <div className="flex flex-col gap-2 w-full">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Project name"
+                    className="flex-1"
+                  />
+                  <Button onClick={handleSaveEdit} disabled={loading || !editName.trim()} size="sm">
+                    Save
+                  </Button>
+                  <Button onClick={() => setEditing(false)} variant="secondary" size="sm">
+                    Cancel
+                  </Button>
+                </div>
+                                 <div className="space-y-2">
+                   <label className="text-sm font-medium">Hackatime Project (Optional)</label>
+                   <HackatimeProjectSelect
+                     value={editHackatimeProjectName}
+                     onValueChange={setEditHackatimeProjectName}
+                     placeholder="Select a Hackatime project (optional)"
+                     showClearButton={true}
+                   />
+                 </div>
               </div>
             ) : (
               <>
@@ -201,6 +219,54 @@ export default function ProjectDetailsModal({
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span>Approved: {formatDuration(project.approvedHours || 0)}</span>
                   <span>Pending: {formatDuration(project.pendingHours || 0)}</span>
+                </div>
+
+                {/* Hackatime Integration */}
+                <Separator />
+                <div className="space-y-3">
+                  <h4 className="font-medium">Hackatime Integration</h4>
+                  
+                  {project.hackatimeProjectName ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Connected Project:</span>
+                        <span className="text-sm text-muted-foreground">{project.hackatimeProjectName}</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium">Session Hours:</span>
+                          <div className="text-muted-foreground">
+                            <div>Approved: {formatDuration(project.sessionApprovedHours || 0)}</div>
+                            <div>Pending: {formatDuration(project.sessionPendingHours || 0)}</div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="font-medium">Hackatime Hours:</span>
+                          <div className="text-muted-foreground">
+                            <div>Approved: {formatDuration(project.hackatimeApprovedHours || 0)}</div>
+                            <div>Pending: {formatDuration(project.hackatimePendingHours || 0)}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No Hackatime project linked. You can link this project to a Hackatime project for automatic time tracking.
+                    </div>
+                  )}
+                  
+                  {project.status === 'active' && (
+                    <div className="pt-2">
+                      <Button
+                        onClick={() => setEditing(true)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        {project.hackatimeProjectName ? 'Edit Hackatime Link' : 'Link to Hackatime'}
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {project.status === 'submitted' && (

@@ -38,6 +38,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const updated = await updateProject(id, {
     ...project,
     name: body.name,
+    hackatimeProjectName: body.hackatimeProjectName
   });
   if (!updated) {
     return NextResponse.json({ error: "Failed to update project." }, { status: 500 });
