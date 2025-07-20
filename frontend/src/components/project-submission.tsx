@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Project } from "@/lib/db/types";
 
@@ -159,11 +159,11 @@ export default function ProjectSubmission({ project, onClose, onSuccess, setShow
             />
           </div>
 
-          {error && (
-            <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+                {error && (
+        <Notice variant="warning">
+          {error}
+        </Notice>
+      )}
 
           <div className="flex gap-3 justify-end">
             <Button type="submit" disabled={loading} className="w-40 mx-auto py-1 text-sm font-bold shadow-md">

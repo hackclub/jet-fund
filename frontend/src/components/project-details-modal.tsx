@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Notice } from "@/components/ui/notice";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import HackatimeProjectSelect from "@/components/hackatime-project-select";
 import SessionEditModal from "@/components/session-edit-modal";
@@ -206,11 +207,14 @@ export default function ProjectDetailsModal({
                   )}
                 </div>
                 
-                {project.rejectionReason && (
-                  <div className="flex items-start gap-2">
-                    <span className="font-medium">Rejection Reason:</span>
-                    <p className="text-sm text-muted-foreground">{project.rejectionReason}</p>
-                  </div>
+                {project.reviewJustification && (
+                  <Notice variant={
+                    project.status === 'approved' ? 'success' :
+                    project.status === 'rejected' ? 'destructive' :
+                    'warning'
+                  }>
+                    <span className="font-medium">Review Justification:</span> {project.reviewJustification}
+                  </Notice>
                 )}
                 
                 <div className="flex items-center gap-2">
@@ -393,10 +397,9 @@ export default function ProjectDetailsModal({
                               </div>
                               
                               {session.rejectionReason && (
-                                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs">
-                                  <span className="font-medium text-red-800">Rejection Reason:</span>
-                                  <p className="text-red-700 mt-1">{session.rejectionReason}</p>
-                                </div>
+                                <Notice variant="destructive" className="mt-2 text-xs">
+                                  <span className="font-medium">Rejection Reason:</span> {session.rejectionReason}
+                                </Notice>
                               )}
                             </div>
                             

@@ -40,7 +40,7 @@ export interface Project {
   readonly hackatimeApprovedHours?: number; // Approved Hackatime hours (set manually)
   readonly pendingHours?: number; // Total pending hours: sessionPendingHours + hackatimePendingHours
   readonly approvedHours?: number; // Total approved hours: sessionApprovedHours + hackatimeApprovedHours
-  readonly rejectionReason?: string; // Set by reviewers in Airtable when status is "rejected"
+  readonly reviewJustification?: string; // Set by reviewers in Airtable when status is "approved" or "rejected"
 }
 
 export interface Session {

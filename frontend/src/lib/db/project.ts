@@ -31,7 +31,7 @@ function recordToProject(record: AirtableRecord<FieldSet>): Project {
     hackatimeApprovedHours: roundToTwoDecimals(record.get('hackatimeApprovedHours') as number | undefined),
     pendingHours: roundToTwoDecimals(record.get('pendingHours') as number | undefined),
     approvedHours: roundToTwoDecimals(record.get('approvedHours') as number | undefined),
-    rejectionReason: record.get('rejectionReason') as string | undefined,
+    reviewJustification: record.get('reviewJustification') as string | undefined,
   };
 }
 

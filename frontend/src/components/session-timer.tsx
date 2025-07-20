@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Card, CardContent } from "@/components/ui/card";
 import SessionForm from "@/components/session-form";
 import prettyMs from "pretty-ms";
@@ -220,10 +220,10 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                       <p className="text-xs text-muted-foreground">
                         Connected to: <strong>{projects.find(p => p.id === selectedProject)?.hackatimeProjectName}</strong>
                       </p>
-                      <p className="text-xs text-orange-700 bg-orange-50 p-2 rounded">
+                      <Notice variant="warning" className="text-xs">
                         ⚠️ This project is connected to Hackatime for automatic time tracking. 
                         Manual sessions are disabled and will not contribute to earnings. To log time manually, disconnect the project from Hackatime.
-                      </p>
+                      </Notice>
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">
@@ -273,25 +273,23 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       )}
       
       {!timerActive && !showForm && statusMessage && (
-        <Alert>
-          <AlertDescription>
-            {typeof statusMessage === "string" ? statusMessage : ""}
-            {typeof statusMessage === "string" && statusMessage.includes("needs commit URL and screenshot") && (
-              <div className="mt-2">
-                <Button 
-                  onClick={() => {
-                    // This will be handled by the startTimer function when it detects the unfinished session
-                    startTimer();
-                  }}
-                  variant="outline"
-                  size="sm"
-                >
-                  Complete Session
-                </Button>
-              </div>
-            )}
-          </AlertDescription>
-        </Alert>
+        <Notice>
+          {typeof statusMessage === "string" ? statusMessage : ""}
+          {typeof statusMessage === "string" && statusMessage.includes("needs commit URL and screenshot") && (
+            <div className="mt-2">
+              <Button 
+                onClick={() => {
+                  // This will be handled by the startTimer function when it detects the unfinished session
+                  startTimer();
+                }}
+                variant="outline"
+                size="sm"
+              >
+                Complete Session
+              </Button>
+            </div>
+          )}
+        </Notice>
       )}
     </div>
   );

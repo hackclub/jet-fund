@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import ProjectSubmission from "@/components/project-submission";
@@ -169,8 +169,8 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
       </Card>
       
       {submissionError && (
-        <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold">
-          <AlertDescription className="flex items-center justify-between">
+        <Notice variant="warning">
+          <div className="flex items-center justify-between">
             {submissionError}
             <Button 
               variant="ghost" 
@@ -180,8 +180,8 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
             >
               ×
             </Button>
-          </AlertDescription>
-        </Alert>
+          </div>
+        </Notice>
       )}
       
       <div className="space-y-2">

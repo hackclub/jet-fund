@@ -3,7 +3,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Target, User, Loader2, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -88,12 +88,10 @@ function HomeContent() {
 
       {/* No Active Projects Notice */}
       {!hasActiveProject && (
-        <Alert className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
-          <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-          <AlertDescription className="text-yellow-800 dark:text-yellow-200 font-medium">
-            You have no active projects. Create a new project under the &quot;Your Projects&quot; section, then you can start logging time spent programming.
-          </AlertDescription>
-        </Alert>
+        <Notice variant="warning">
+          <AlertTriangle className="h-4 w-4" />
+          You have no active projects. Create a new project under the &quot;Your Projects&quot; section, then you can start logging time spent programming.
+        </Notice>
       )}
 
       {/* Main Grid - Session Timer and Projects */}

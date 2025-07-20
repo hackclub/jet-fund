@@ -3,7 +3,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { LogOut } from "lucide-react";
@@ -323,11 +323,11 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
               </Alert>
             )}
             
-            {error && (
-              <Alert className="bg-yellow-100 dark:bg-yellow-900 border-yellow-400 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 font-semibold">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+                  {error && (
+        <Notice variant="warning">
+          {error}
+        </Notice>
+      )}
           </div>
 
           {/* Sign Out Everywhere Section */}
