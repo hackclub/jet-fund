@@ -50,10 +50,10 @@ export function HelpModal() {
                     >
                       Hackatime
                     </a>{" "}
-                    for automatic time tracking
+                    for automatic time tracking (manual sessions disabled)
                   </li>
                   <li>
-                    <b>Manual Sessions:</b> Use the session timer to manually log your coding hours
+                    <b>Manual Sessions:</b> Use the session timer to manually log your coding hours (when not connected to Hackatime)
                   </li>
                 </ul>
               </li>

@@ -31,6 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cannot log time to a submitted project." }, { status: 400 });
     }
     
+    // Check if project has hackatime connected - if so, prevent manual sessions
+    if (project.hackatimeProjectName) {
+      return NextResponse.json({ 
+        error: "Cannot start manual sessions for projects connected to Hackatime. Only Hackatime hours will count towards earnings." 
+      }, { status: 400 });
+    }
+    
     // Check for unfinished session
     const unfinished = await getUnfinishedSessionForUser(user.airtableId);
     if (unfinished) {

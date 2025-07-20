@@ -214,11 +214,7 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                 <span className="ml-0 sm:ml-2 text-xs text-muted-foreground">
                   {p.hackatimeProjectName ? (
                     <div>
-                      <div>{p.approvedHours || 0} approved, {p.pendingHours || 0} pending hours</div>
-                      <div className="text-xs">
-                        <div>Approved: {p.sessionApprovedHours || 0}h session + {p.hackatimeApprovedHours || 0}h hackatime</div>
-                        <div>Pending: {p.sessionPendingHours || 0}h session + {p.hackatimePendingHours || 0}h hackatime</div>
-                      </div>
+                      <div>{p.hackatimeApprovedHours || 0} approved, {p.hackatimePendingHours || 0} pending hours (Hackatime only)</div>
                     </div>
                   ) : (
                     `${p.approvedHours || 0} approved, ${p.pendingHours || 0} pending hours`
@@ -235,6 +231,9 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                 )}
                 {ongoingSession === p.id && (
                   <Badge variant="outline">Session Active</Badge>
+                )}
+                {p.hackatimeProjectName && (
+                  <Badge variant="secondary">Hackatime</Badge>
                 )}
                 {p.status === 'active' && (
                   <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">

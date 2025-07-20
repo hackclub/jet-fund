@@ -220,9 +220,9 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                       <p className="text-xs text-muted-foreground">
                         Connected to: <strong>{projects.find(p => p.id === selectedProject)?.hackatimeProjectName}</strong>
                       </p>
-                      <p className="text-xs text-green-700 bg-green-50 p-2 rounded">
-                        ✓ This project is connected to Hackatime for automatic time tracking. 
-                        Manual session logging is optional but still available.
+                      <p className="text-xs text-orange-700 bg-orange-50 p-2 rounded">
+                        ⚠️ This project is connected to Hackatime for automatic time tracking. 
+                        Manual sessions are disabled and will not contribute to earnings. To log time manually, disconnect the project from Hackatime.
                       </p>
                     </div>
                   ) : (
@@ -236,7 +236,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
               
               <Button 
                 type="submit" 
-                disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status !== 'active'}
+                disabled={loading || !selectedProject || projects.find(p => p.id === selectedProject)?.status !== 'active' || !!projects.find(p => p.id === selectedProject)?.hackatimeProjectName}
                 className="w-full outline-purple"
                 variant="default"
               >
