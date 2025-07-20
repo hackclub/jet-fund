@@ -8,7 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConfirmationDialog from "@/components/ui/confirmation-dialog";
 import HackatimeProjectSelect from "@/components/hackatime-project-select";
-import { Calendar, Clock, GitBranch, Image, ExternalLink, Trash2 } from "lucide-react";
+import SessionEditModal from "@/components/session-edit-modal";
+import { Calendar, Clock, GitBranch, Image, ExternalLink, Trash2, Edit } from "lucide-react";
 import type { Project, Session } from "@/lib/db/types";
 
 interface ProjectDetailsModalProps {
@@ -35,6 +36,7 @@ export default function ProjectDetailsModal({
     projectId: string | null;
     projectName: string;
   }>({ isOpen: false, projectId: null, projectName: "" });
+  const [editingSession, setEditingSession] = useState<Session | null>(null);
 
   const fetchSessions = useCallback(async () => {
     if (!project) return;
@@ -423,6 +425,18 @@ export default function ProjectDetailsModal({
                                   Screenshot
                                 </a>
                               )}
+                              
+                              {session.status === 'rejected' && (
+                                <Button
+                                  onClick={() => setEditingSession(session)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs h-6 px-2"
+                                >
+                                  <Edit className="h-3 w-3 mr-1" />
+                                  Edit
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </CardContent>
@@ -464,6 +478,17 @@ export default function ProjectDetailsModal({
         confirmText="Delete"
         cancelText="Cancel"
         variant="destructive"
+      />
+
+      {/* Session Edit Modal */}
+      <SessionEditModal
+        session={editingSession}
+        isOpen={!!editingSession}
+        onClose={() => setEditingSession(null)}
+        onSuccess={() => {
+          fetchSessions();
+          onProjectUpdate();
+        }}
       />
     </Dialog>
   );

@@ -5,6 +5,13 @@ import { SESSIONS_TABLE, base, AIRTABLE_VIEW } from "./airtable";
 // Helper to convert Airtable record to Session
 function recordToSession(record: Airtable.Record<Airtable.FieldSet>): Session {
   const status = record.get("status") as string;
+  
+  // Helper function to round numbers to 2 decimal places
+  const roundToTwoDecimals = (value: number | undefined): number | undefined => {
+    if (value === undefined || value === null) return undefined;
+    return Math.round(value * 100) / 100;
+  };
+  
   return {
     id: record.id,
     user: record.get("user") as string[],
@@ -14,7 +21,7 @@ function recordToSession(record: Airtable.Record<Airtable.FieldSet>): Session {
     gitCommitUrl: record.get("gitCommitUrl") as string,
     imageUrl: record.get("imageUrl") as string,
     status: (status === "finished" || status === "approved" || status === "rejected") ? status : "ongoing",
-    hoursSpent: record.get("hoursSpent") as number | undefined,
+    hoursSpent: roundToTwoDecimals(record.get("hoursSpent") as number | undefined),
     rejectionReason: record.get("rejectionReason") as string | undefined,
   };
 }
@@ -155,7 +162,8 @@ export async function getTotalTimeForProject(projectId: string): Promise<number>
     }
   }
   
-  return totalHours;
+  // Round to 2 decimal places for consistency
+  return Math.round(totalHours * 100) / 100;
 }
 
 

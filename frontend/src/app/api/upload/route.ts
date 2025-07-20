@@ -12,9 +12,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get file extension and create new filename
+    const fileExtension = file.name.split('.').pop() || 'jpg';
+    const newFileName = `screenshot.${fileExtension}`;
+    
+    // Create a new File object with the desired filename
+    const renamedFile = new File([file], newFileName, { type: file.type });
+
     // Step 1: Upload to Bucky
     const buckyFormData = new FormData();
-    buckyFormData.append("file", file);
+    buckyFormData.append("file", renamedFile);
     
     const buckyResponse = await fetch("https://bucky.hackclub.com/", {
       method: "POST",

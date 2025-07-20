@@ -5,6 +5,13 @@ import type { Project } from "@/lib/db/types";
 // Helper to convert Airtable record to Project
 function recordToProject(record: AirtableRecord<FieldSet>): Project {
   const status = record.get('status') as string;
+  
+  // Helper function to round numbers to 2 decimal places
+  const roundToTwoDecimals = (value: number | undefined): number | undefined => {
+    if (value === undefined || value === null) return undefined;
+    return Math.round(value * 100) / 100;
+  };
+  
   return {
     id: record.id,
     name: record.get('name') as string,
@@ -18,12 +25,12 @@ function recordToProject(record: AirtableRecord<FieldSet>): Project {
     description: record.get('description') as string | undefined,
     // Hackatime integration
     hackatimeProjectName: record.get('hackatimeProjectName') as string | undefined,
-    sessionPendingHours: record.get('sessionPendingHours') as number | undefined,
-    sessionApprovedHours: record.get('sessionApprovedHours') as number | undefined,
-    hackatimePendingHours: record.get('hackatimePendingHours') as number | undefined,
-    hackatimeApprovedHours: record.get('hackatimeApprovedHours') as number | undefined,
-    pendingHours: record.get('pendingHours') as number | undefined,
-    approvedHours: record.get('approvedHours') as number | undefined,
+    sessionPendingHours: roundToTwoDecimals(record.get('sessionPendingHours') as number | undefined),
+    sessionApprovedHours: roundToTwoDecimals(record.get('sessionApprovedHours') as number | undefined),
+    hackatimePendingHours: roundToTwoDecimals(record.get('hackatimePendingHours') as number | undefined),
+    hackatimeApprovedHours: roundToTwoDecimals(record.get('hackatimeApprovedHours') as number | undefined),
+    pendingHours: roundToTwoDecimals(record.get('pendingHours') as number | undefined),
+    approvedHours: roundToTwoDecimals(record.get('approvedHours') as number | undefined),
     rejectionReason: record.get('rejectionReason') as string | undefined,
   };
 }
