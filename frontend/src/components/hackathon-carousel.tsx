@@ -47,10 +47,6 @@ export function HackathonCarousel() {
 
   return (
     <section className="my-6">
-      <h2 className="text-xl font-bold mb-2 text-center">
-        Jet Fund allows you to fly to any community-ran hackathon on{' '}
-        <a href="https://hackathons.hackclub.com/" target="_blank" rel="noopener noreferrer" className="underline text-primary">hackathons.hackclub.com</a>, even internationally.
-      </h2>
       {loading ? (
         <div className="text-center py-4">Loading hackathons...</div>
       ) : error ? (

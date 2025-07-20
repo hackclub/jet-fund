@@ -136,7 +136,17 @@ function LandingContent() {
 
       {/* Hackathon Carousel */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-center">Available Hackathons</h2>
+        <div className="text-center">
+        <h2 className="text-2xl">Available Hackathons</h2>
+        <h3 className="text-xl mb-2">
+        Jet Fund allows you to fly to any community-ran hackathon on{' '}
+        <a href="https://hackathons.hackclub.com/" target="_blank" rel="noopener noreferrer" className="underline text-primary">hackathons.hackclub.com</a>, even internationally.
+      </h3>
+        <p>
+          Other events and conventions are also eligible. In addition, you can fly to Hack Club HQ in Vermont and stay for free in <a href="https://hackclub.com/steve/" className="underline text-primary">Steve</a>.
+        </p>
+        <p>Upon request, most events will be approved, assuming there is some technical aspect. For more information, check out #jet on the Hack Club Slack.</p>
+        </div>
         <HackathonCarousel />
       </div>
     </div>

@@ -77,6 +77,28 @@ export function HelpModal() {
               </li>
             </ul>
             <p>Need help? DM @Angad Behl on the Hack Club Slack or email <a href="mailto:angad@hackclub.com">angad@hackclub.com</a></p>
+            
+            <p className="mt-3">
+              <b>Eligible Events:</b> Jet Fund allows you to fly to any community-ran hackathon on{' '}
+              <a 
+                href="https://hackathons.hackclub.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-primary hover:underline"
+              >
+                hackathons.hackclub.com
+              </a>
+              , even internationally. Other events and conventions are also eligible. You can also fly to Hack Club HQ in Vermont and stay for free in{' '}
+              <a 
+                href="https://hackclub.com/steve/" 
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Steve
+              </a>
+              . Upon request, most events will be approved, assuming there is some technical aspect. For more information, check out #jet on the Hack Club Slack.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
