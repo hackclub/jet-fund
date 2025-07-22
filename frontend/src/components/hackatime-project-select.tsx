@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Loader2, RefreshCw, X } from "lucide-react";
 import type { HackatimeProject } from "@/lib/hackatime";
 
@@ -51,9 +51,9 @@ export default function HackatimeProjectSelect({
   if (error) {
     return (
       <div className="space-y-2">
-        <Alert>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <Notice variant="destructive">
+          {error}
+        </Notice>
         <Button 
           onClick={fetchHackatimeProjects} 
           variant="outline" 
@@ -123,4 +123,4 @@ export default function HackatimeProjectSelect({
              )}
            </div>
          );
-} 
+}

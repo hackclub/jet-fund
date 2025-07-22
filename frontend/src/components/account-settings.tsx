@@ -318,16 +318,16 @@ export default function AccountSettings({ onClose }: AccountSettingsProps) {
             </Button>
             
             {message && (
-              <Alert>
-                <AlertDescription>{message}</AlertDescription>
-              </Alert>
+              <Notice variant="success">
+                {message}
+              </Notice>
             )}
             
-                  {error && (
-        <Notice variant="warning">
-          {error}
-        </Notice>
-      )}
+            {error && (
+              <Notice variant="warning">
+                {error}
+              </Notice>
+            )}
           </div>
 
           {/* Sign Out Everywhere Section */}

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Notice } from "@/components/ui/notice";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Session } from "@/lib/db/types";
 
@@ -112,30 +112,26 @@ export default function SessionForm({
       <CardContent className="pt-6">
         {/* Header Alert */}
         <div className="mb-4">
-          <Alert>
-            <AlertDescription>
-              {isEditMode ? (
-                <>
-                  <strong>Update Rejected Session:</strong> Please provide updated commit URL and screenshot for{" "}
-                  <strong>{projectName || "this project"}</strong>
-                </>
-              ) : (
-                <>
-                  <strong>Session Finished:</strong> Please provide the commit URL and screenshot to complete your session submission for{" "}
-                  <strong>{projectName || "this project"}</strong>
-                </>
-              )}
-            </AlertDescription>
-          </Alert>
+          <Notice variant={isEditMode ? "info" : "success"}>
+            {isEditMode ? (
+              <>
+                <strong>Update Rejected Session:</strong> Please provide updated commit URL and screenshot for{" "}
+                <strong>{projectName || "this project"}</strong>
+              </>
+            ) : (
+              <>
+                <strong>Session Finished:</strong> Please provide the commit URL and screenshot to complete your session submission for{" "}
+                <strong>{projectName || "this project"}</strong>
+              </>
+            )}
+          </Notice>
         </div>
 
         {/* Rejection Reason (edit mode only) */}
         {isEditMode && rejectionReason && (
-          <Alert className="mb-4">
-            <AlertDescription>
-              <strong>Rejection Reason:</strong> {rejectionReason}
-            </AlertDescription>
-          </Alert>
+          <Notice variant="warning" className="mb-4">
+            <strong>Rejection Reason:</strong> {rejectionReason}
+          </Notice>
         )}
 
         {/* Form */}
@@ -171,9 +167,9 @@ export default function SessionForm({
 
           {/* Error Display */}
           {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
+            <Notice variant="destructive">
+              {error}
+            </Notice>
           )}
 
           {/* Action Buttons */}
@@ -200,4 +196,4 @@ export default function SessionForm({
       </CardContent>
     </Card>
   );
-} 
+}
