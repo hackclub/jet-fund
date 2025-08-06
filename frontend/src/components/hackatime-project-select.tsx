@@ -100,7 +100,8 @@ export default function HackatimeProjectSelect({
                        <div className="flex flex-col">
                          <span className="font-medium">{project.name}</span>
                          <span className="text-sm text-muted-foreground">
-                           {project.text} ({project.percent.toFixed(1)}%)
+                           {/* {project.text} ({project.percent.toFixed(1)}%) */}
+                           {project.text}
                          </span>
                        </div>
                      </SelectItem>
