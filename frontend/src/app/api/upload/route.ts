@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { closeAdditions } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if submissions are closed
+    if (closeAdditions) {
+      return NextResponse.json({ error: "Submissions are currently closed. File uploads are not allowed at this time." }, { status: 403 });
+    }
+    
     const formData = await request.formData();
     const file = formData.get('file') as File;
 

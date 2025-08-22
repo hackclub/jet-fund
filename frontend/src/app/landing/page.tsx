@@ -4,10 +4,12 @@ import SignIn from "@/components/sign-in";
 import { SessionProvider, useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Notice } from "@/components/ui/notice";
 import { Clock, Target, PiggyBank, Plane } from "lucide-react";
 import { HackathonCarousel } from "@/components/hackathon-carousel";
 import { useRouter } from "next/navigation";
 import { REIMBURSEMENT_FORM_URL } from "@/lib/consts";
+import { closeAdditions } from "@/lib/utils";
 
 function LandingContent() {
   const { data: session, status } = useSession();
@@ -44,6 +46,15 @@ function LandingContent() {
   // Show landing page content
   return (
     <div className="space-y-8">
+      {/* Submissions Closed Notice */}
+      {closeAdditions && (
+        <Notice variant="warning">
+          <div className="flex items-center gap-2">
+            <span>⚠️ Submissions are currently closed. New projects and submissions are not allowed at this time.</span>
+          </div>
+        </Notice>
+      )}
+      
       {/* Hero Section */}
       <div className="text-center space-y-6 flex flex-col items-center justify-center min-h-[350px]">
         <div className="relative z-10 w-full flex flex-col items-center space-y-6">

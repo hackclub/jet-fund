@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Notice } from "@/components/ui/notice";
 import { Card, CardContent } from "@/components/ui/card";
 import SessionForm from "@/components/session-form";
 import prettyMs from "pretty-ms";
 import type { Project } from "@/lib/db/types";
+import { closeAdditions } from "@/lib/utils";
 
 interface SessionTimerProps {
   selectedProject: string;
@@ -169,7 +169,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
 
   return (
     <div className="flex flex-col gap-4 max-w-md mx-auto">
-      {!timerActive && !showForm && (
+      {!timerActive && !showForm && !closeAdditions && (
         <Card>
           <CardContent className="pt-6">
             <form
@@ -220,10 +220,10 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
                       <p className="text-xs text-muted-foreground">
                         Connected to: <strong>{projects.find(p => p.id === selectedProject)?.hackatimeProjectName}</strong>
                       </p>
-                      <Notice variant="warning" className="text-xs">
+                      <p className="text-xs text-muted-foreground">
                         ⚠️ This project is connected to Hackatime for automatic time tracking. 
                         Manual sessions are disabled and will not contribute to earnings. To log time manually, disconnect the project from Hackatime.
-                      </Notice>
+                      </p>
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">
@@ -273,7 +273,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
       )}
       
       {!timerActive && !showForm && statusMessage && (
-        <Notice>
+        <p className="text-center text-sm text-muted-foreground">
           {typeof statusMessage === "string" ? statusMessage : ""}
           {typeof statusMessage === "string" && statusMessage.includes("needs commit URL and screenshot") && (
             <div className="mt-2">
@@ -289,7 +289,7 @@ export default function SessionTimer({ selectedProject, setSelectedProject, proj
               </Button>
             </div>
           )}
-        </Notice>
+        </p>
       )}
     </div>
   );

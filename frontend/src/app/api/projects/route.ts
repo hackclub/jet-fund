@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { getProjectsByUserId, createProject } from "@/lib/db/project";
+import { closeAdditions } from "@/lib/utils";
 
 export async function GET() {
   const user = await getUser();
@@ -12,6 +13,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  // Check if submissions are closed
+  if (closeAdditions) {
+    return NextResponse.json({ error: "Submissions are currently closed. New projects cannot be created at this time." }, { status: 403 });
+  }
+  
   const user = await getUser();
   if (!user || !user.airtableId) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   const body = await req.json();

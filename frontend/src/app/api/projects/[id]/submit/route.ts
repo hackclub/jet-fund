@@ -3,9 +3,15 @@ import { getUser } from "@/lib/auth";
 import { getProjectByRecordId, updateProject } from "@/lib/db/project";
 import { getUserByRecordId } from "@/lib/db/user";
 import { getUnfinishedSessionForUser, updateSessionStatusesForProject } from "@/lib/db/session";
+import { closeAdditions } from "@/lib/utils";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Check if submissions are closed
+    if (closeAdditions) {
+      return NextResponse.json({ error: "Submissions are currently closed. Projects cannot be submitted at this time." }, { status: 403 });
+    }
+    
     const user = await getUser();
     if (!user || !user.airtableId) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });

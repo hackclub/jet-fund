@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { getProjectByRecordId, updateProject, deleteProject } from "@/lib/db/project";
+import { closeAdditions } from "@/lib/utils";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,6 +18,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Check if submissions are closed
+  if (closeAdditions) {
+    return NextResponse.json({ error: "Submissions are currently closed. Projects cannot be edited at this time." }, { status: 403 });
+  }
+  
   const user = await getUser();
   if (!user || !user.airtableId) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   const body = await req.json();

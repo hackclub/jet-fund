@@ -109,68 +109,68 @@ export default function ProjectSubmission({ project, onClose, onSuccess, setShow
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="playableUrl">Playable URL *</Label>
-            <Input
-              type="url"
-              id="playableUrl"
-              value={formData.playableUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, playableUrl: e.target.value }))}
-              placeholder="https://your-project.vercel.app"
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="playableUrl">Playable URL *</Label>
+              <Input
+                type="url"
+                id="playableUrl"
+                value={formData.playableUrl}
+                onChange={(e) => setFormData(prev => ({ ...prev, playableUrl: e.target.value }))}
+                placeholder="https://your-project.vercel.app"
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="codeUrl">Code Repository URL *</Label>
-            <Input
-              type="url"
-              id="codeUrl"
-              value={formData.codeUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, codeUrl: e.target.value }))}
-              placeholder="https://github.com/username/project"
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="codeUrl">Code Repository URL *</Label>
+              <Input
+                type="url"
+                id="codeUrl"
+                value={formData.codeUrl}
+                onChange={(e) => setFormData(prev => ({ ...prev, codeUrl: e.target.value }))}
+                placeholder="https://github.com/username/project"
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="screenshot">Screenshot *</Label>
-            <Input
-              type="file"
-              id="screenshot"
-              accept="image/*"
-              onChange={(e) => setFormData(prev => ({ ...prev, screenshot: e.target.files?.[0] || null }))}
-              required
-            />
-            <p className="text-sm text-muted-foreground">
-              Upload a screenshot of your project in action
-            </p>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="screenshot">Screenshot *</Label>
+              <Input
+                type="file"
+                id="screenshot"
+                accept="image/*"
+                onChange={(e) => setFormData(prev => ({ ...prev, screenshot: e.target.files?.[0] || null }))}
+                required
+              />
+              <p className="text-sm text-muted-foreground">
+                Upload a screenshot of your project in action
+              </p>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={4}
-              placeholder="Describe your project, what it does, technologies used, etc."
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={4}
+                placeholder="Describe your project, what it does, technologies used, etc."
+                required
+              />
+            </div>
 
-                {error && (
-        <Notice variant="warning">
-          {error}
-        </Notice>
-      )}
+            {error && (
+              <Notice variant="warning">
+                {error}
+              </Notice>
+            )}
 
-          <div className="flex gap-3 justify-end">
-            <Button type="submit" disabled={loading} className="w-40 mx-auto py-1 text-sm font-bold shadow-md">
-              {loading ? "Submitting..." : "Submit Project"}
-            </Button>
-          </div>
-        </form>
+            <div className="flex gap-3 justify-end">
+              <Button type="submit" disabled={loading} className="w-40 mx-auto py-1 text-sm font-bold shadow-md">
+                {loading ? "Submitting..." : "Submit Project"}
+              </Button>
+            </div>
+          </form>
       </DialogContent>
     </Dialog>
   );

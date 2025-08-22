@@ -13,6 +13,7 @@ import AccountSettings from "@/components/account-settings";
 import SessionTimer from "@/components/session-timer";
 import ProjectManager from "@/components/project-manager";
 import { useRouter } from "next/navigation";
+import { closeAdditions } from "@/lib/utils";
 
 function HomeContent() {
   const { data: session, status } = useSession();
@@ -90,14 +91,14 @@ function HomeContent() {
       {!hasActiveProject && (
         <Notice variant="warning">
           <AlertTriangle className="h-4 w-4" />
-          You have no active projects. Create a new project under the &quot;Your Projects&quot; section, then you can start logging time spent programming.
+          You have no active projects. Create a new project under the "Your Projects" section, then you can start logging time spent programming.
         </Notice>
       )}
 
       {/* Main Grid - Session Timer and Projects */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Session Timer Card - Only show if there are active projects */}
-        {hasActiveProject && (
+        {/* Session Timer Card - Only show if there are active projects and submissions are open */}
+        {hasActiveProject && !closeAdditions && (
           <Card className="md:col-span-2 lg:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -117,7 +118,7 @@ function HomeContent() {
         )}
 
         {/* Projects Card */}
-        <Card className={hasActiveProject ? "md:col-span-2" : "md:col-span-2 lg:col-span-3"}>
+        <Card className={hasActiveProject && !closeAdditions ? "md:col-span-2" : "md:col-span-2 lg:col-span-3"}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5 text-primary" />

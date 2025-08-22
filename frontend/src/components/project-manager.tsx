@@ -10,6 +10,7 @@ import HackatimeProjectSelect from "@/components/hackatime-project-select";
 import type { Project } from "@/lib/db/types";
 import { Eye, Pencil } from "lucide-react";
 import CheckBadge from "@/components/ui/check-badge";
+import { closeAdditions } from "@/lib/utils";
 
 interface ProjectManagerProps {
   selectedProject?: string;
@@ -25,36 +26,44 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
   const [showHackatimeSelect, setShowHackatimeSelect] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState<React.ReactNode | null>(null);
+  const [creationError, setCreationError] = useState<string | null>(null);
   const [submissionProject, setSubmissionProject] = useState<Project | null>(null);
   const [ongoingSession, setOngoingSession] = useState<string | null>(null);
   const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<Project | null>(null);
 
-
   async function handleCreate() {
     if (!newName.trim()) return;
     setLoading(true);
-    const res = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        name: newName,
-        hackatimeProjectName: newHackatimeProject || undefined
-      }),
-    });
-    if (res.ok) {
-      setNewName("");
-      setNewHackatimeProject("");
-      setShowHackatimeSelect(false);
-      await refreshProjects();
+    setCreationError(null);
+    
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          name: newName,
+          hackatimeProjectName: newHackatimeProject || undefined
+        }),
+      });
+      
+      if (res.ok) {
+        setNewName("");
+        setNewHackatimeProject("");
+        setShowHackatimeSelect(false);
+        await refreshProjects();
+      } else {
+        const errorData = await res.json();
+        setCreationError(errorData.error || `Failed to create project (${res.status})`);
+      }
+    } catch (error) {
+      setCreationError("Network error occurred while creating project");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
-
-
-
-
   function handleSubmissionSuccess() {
+
     setSubmissionProject(null);
     refreshProjects();
   }
@@ -123,50 +132,79 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
-        <CardContent className="pt-2">
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                placeholder="New project name"
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
-            </div>
-            
-            {/* Hackatime Project Selection */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowHackatimeSelect(!showHackatimeSelect)}
-                >
-                  {showHackatimeSelect ? "Hide" : "Add"} Hackatime Project (Optional)
-                </Button>
-                {newHackatimeProject && (
-                  <span className="text-sm text-muted-foreground">
-                    Selected: {newHackatimeProject}
-                  </span>
-                )}
+      {/* Show notice when submissions are closed */}
+      {closeAdditions && (
+        <Notice variant="warning">
+          <div className="flex items-center gap-2">
+            <span>⚠️ Submissions are currently closed. New projects and submissions are not allowed at this time.</span>
+          </div>
+        </Notice>
+      )}
+      
+      {/* Show creation error if any */}
+      {creationError && (
+        <Notice variant="warning">
+          <div className="flex items-center justify-between">
+            {creationError}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setCreationError(null)}
+              className="h-auto p-0 text-muted-foreground hover:text-foreground"
+            >
+              ×
+            </Button>
+          </div>
+        </Notice>
+      )}
+      
+      {/* Only show project creation form when submissions are open */}
+      {!closeAdditions && (
+        <Card>
+          <CardContent className="pt-2">
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  placeholder="New project name"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleCreate} disabled={loading || !newName.trim()}>Create</Button>
               </div>
               
-                               {showHackatimeSelect && (
-                   <HackatimeProjectSelect
-                     value={newHackatimeProject}
-                     onValueChange={setNewHackatimeProject}
-                     placeholder="Select a Hackatime project (optional)"
-                     showClearButton={true}
-                   />
-                 )}
+              {/* Hackatime Project Selection */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowHackatimeSelect(!showHackatimeSelect)}
+                  >
+                    {showHackatimeSelect ? "Hide" : "Add"} Hackatime Project (Optional)
+                  </Button>
+                  {newHackatimeProject && (
+                    <span className="text-sm text-muted-foreground">
+                      Selected: {newHackatimeProject}
+                    </span>
+                  )}
+                </div>
+                
+                {showHackatimeSelect && (
+                  <HackatimeProjectSelect
+                    value={newHackatimeProject}
+                    onValueChange={setNewHackatimeProject}
+                    placeholder="Select a Hackatime project (optional)"
+                    showClearButton={true}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
       
       {submissionError && (
         <Notice variant="warning">
@@ -235,7 +273,8 @@ export default function ProjectManager({ selectedProject, projects, refreshProje
                 {p.hackatimeProjectName && (
                   <Badge variant="secondary">Hackatime</Badge>
                 )}
-                {p.status === 'active' && (
+                {/* Only show submit button when submissions are open and project is active */}
+                {p.status === 'active' && !closeAdditions && (
                   <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                     <Button 
                       onClick={() => handleSubmitClick(p)} 

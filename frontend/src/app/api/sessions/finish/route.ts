@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateSession, getSessionByRecordId } from "@/lib/db/session";
 import { getUser } from "@/lib/auth";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -42,26 +36,12 @@ export async function POST(req: NextRequest) {
     const durationMs = endTime.getTime() - startTime.getTime();
     const durationHours = durationMs / (1000 * 60 * 60);
     
-    // Prevent sessions longer than 24 hours. Commenting out for now since if you forget to end a session, how are you supposed to start a new one?
-    // if (durationHours > 24) {
-    //   return NextResponse.json({ 
-    //     error: "Session duration exceeds maximum allowed time of 24 hours." 
-    //   }, { status: 400 });
-    // }
-    
     // Prevent sessions with negative duration (end before start)
     if (durationHours < 0) {
       return NextResponse.json({ 
         error: "Invalid session duration: end time cannot be before start time." 
       }, { status: 400 });
     }
-    
-    // Prevent sessions shorter than 1 minute (likely accidental)
-    // if (durationHours < 1/60) {
-    //   return NextResponse.json({ 
-    //     error: "Session duration is too short. Minimum session time is 1 minute." 
-    //   }, { status: 400 });
-    // }
     
     const updated = await updateSession(body.sessionId, {
       ...session,
