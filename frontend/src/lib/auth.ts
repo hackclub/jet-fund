@@ -27,7 +27,10 @@ declare module "next-auth" {
 // NextAuth uses 'callbacks' to let you control what is saved in the JWT and session
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Slack({}),
+    Slack({
+      clientId: process.env.SLACK_CLIENT_ID!,
+      clientSecret: process.env.SLACK_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
     // 'jwt' callback runs whenever a JWT is created or updated
